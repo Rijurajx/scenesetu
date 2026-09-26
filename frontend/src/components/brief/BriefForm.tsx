@@ -13,7 +13,8 @@ import {
   FileText,
   SlidersHorizontal,
   Crop,
-  Sliders
+  Sliders,
+  ChevronDown
 } from "lucide-react";
 import { InstagramIcon, YouTubeIcon, XTwitterIcon } from "@/components/common/PlatformIcons";
 
@@ -300,15 +301,18 @@ export const BriefForm: React.FC = () => {
             <label className="block text-xs font-mono font-medium text-zinc-300 mb-1.5 uppercase tracking-wider">
               Language Preference
             </label>
-            <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value as Language)}
-              className="w-full bg-[#121212] border border-[#242424] rounded-lg px-4 py-2 text-xs text-white focus:outline-none focus:border-white transition-colors"
-            >
-              <option value="bilingual">Bilingual (Native Bengali Primary + English Secondary)</option>
-              <option value="bengali">Pure Native Bengali (বাংলা)</option>
-              <option value="english">Native English</option>
-            </select>
+            <div className="relative">
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value as Language)}
+                className="w-full bg-[#121212] border border-[#242424] rounded-lg pl-3.5 pr-10 py-2.5 text-xs text-white appearance-none cursor-pointer focus:outline-none focus:border-white transition-colors"
+              >
+                <option value="bilingual">Bilingual (Native Bengali Primary + English Secondary)</option>
+                <option value="bengali">Pure Native Bengali (বাংলা)</option>
+                <option value="english">Native English</option>
+              </select>
+              <ChevronDown className="w-4 h-4 text-zinc-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
           </div>
         </div>
 
@@ -344,16 +348,19 @@ export const BriefForm: React.FC = () => {
                 <InstagramIcon className="w-3.5 h-3.5 text-white" />
                 <span>Instagram Framing</span>
               </div>
-              <select
-                value={instagramAspect}
-                onChange={(e) => setInstagramAspect(e.target.value)}
-                className="w-full bg-[#1A1A1A] border border-[#333333] rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-white transition-colors"
-              >
-                <option value="1:1">1:1 (Square Feed - Default)</option>
-                <option value="4:5">4:5 (Vertical Portrait Feed)</option>
-                <option value="9:16">9:16 (Story / Reel)</option>
-                <option value="16:9">16:9 (Landscape Banner)</option>
-              </select>
+              <div className="relative">
+                <select
+                  value={instagramAspect}
+                  onChange={(e) => setInstagramAspect(e.target.value)}
+                  className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg pl-3 pr-9 py-2 text-xs text-white appearance-none cursor-pointer focus:outline-none focus:border-white transition-colors"
+                >
+                  <option value="1:1">1:1 (Square Feed - Default)</option>
+                  <option value="4:5">4:5 (Vertical Portrait Feed)</option>
+                  <option value="9:16">9:16 (Story / Reel)</option>
+                  <option value="16:9">16:9 (Landscape Banner)</option>
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
             </div>
 
             {/* YouTube Dropdown */}
@@ -362,15 +369,18 @@ export const BriefForm: React.FC = () => {
                 <YouTubeIcon className="w-3.5 h-3.5 text-white" />
                 <span>YouTube Framing</span>
               </div>
-              <select
-                value={youtubeAspect}
-                onChange={(e) => setYoutubeAspect(e.target.value)}
-                className="w-full bg-[#1A1A1A] border border-[#333333] rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-white transition-colors"
-              >
-                <option value="16:9">16:9 (Cinematic Thumbnail - Default)</option>
-                <option value="1:1">1:1 (Community Square Post)</option>
-                <option value="9:16">9:16 (Shorts Vertical)</option>
-              </select>
+              <div className="relative">
+                <select
+                  value={youtubeAspect}
+                  onChange={(e) => setYoutubeAspect(e.target.value)}
+                  className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg pl-3 pr-9 py-2 text-xs text-white appearance-none cursor-pointer focus:outline-none focus:border-white transition-colors"
+                >
+                  <option value="16:9">16:9 (Cinematic Thumbnail - Default)</option>
+                  <option value="1:1">1:1 (Community Square Post)</option>
+                  <option value="9:16">9:16 (Shorts Vertical)</option>
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
             </div>
 
             {/* X / Twitter Dropdown */}
@@ -379,15 +389,18 @@ export const BriefForm: React.FC = () => {
                 <XTwitterIcon className="w-3.5 h-3.5 text-white" />
                 <span>X / Twitter Framing</span>
               </div>
-              <select
-                value={xAspect}
-                onChange={(e) => setXAspect(e.target.value)}
-                className="w-full bg-[#1A1A1A] border border-[#333333] rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-white transition-colors"
-              >
-                <option value="16:9">16:9 (Wide Summary Card - Default)</option>
-                <option value="1:1">1:1 (Square Photo Post)</option>
-                <option value="4:5">4:5 (Tall Feed Card)</option>
-              </select>
+              <div className="relative">
+                <select
+                  value={xAspect}
+                  onChange={(e) => setXAspect(e.target.value)}
+                  className="w-full bg-[#1A1A1A] border border-[#333333] rounded-lg pl-3 pr-9 py-2 text-xs text-white appearance-none cursor-pointer focus:outline-none focus:border-white transition-colors"
+                >
+                  <option value="16:9">16:9 (Wide Summary Card - Default)</option>
+                  <option value="1:1">1:1 (Square Photo Post)</option>
+                  <option value="4:5">4:5 (Tall Feed Card)</option>
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
             </div>
           </div>
         </div>

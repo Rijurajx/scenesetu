@@ -482,7 +482,7 @@ export const ReviewWorkspace: React.FC = () => {
                 >
                   <button
                     type="button"
-                    className="mt-0.5 p-1 rounded-md bg-[#181818] border border-[#2B2B2B] text-zinc-300 hover:text-white"
+                    className="mt-0.5 p-2 rounded-lg bg-[#181818] hover:bg-[#242424] border border-[#2B2B2B] text-zinc-300 hover:text-white shrink-0 flex items-center justify-center transition-colors"
                   >
                     {isExpanded ? (
                       <ChevronUp className="w-4 h-4" />
@@ -1136,16 +1136,19 @@ export const ReviewWorkspace: React.FC = () => {
                   <label className="block text-xs font-mono text-zinc-300 mb-1">
                     Target Aspect Ratio
                   </label>
-                  <select
-                    value={imageRegenAspect}
-                    onChange={(e) => setImageRegenAspect(e.target.value)}
-                    className="w-full bg-[#181818] border border-[#333333] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-white"
-                  >
-                    <option value="1:1">1:1 Square (Instagram Feed)</option>
-                    <option value="16:9">16:9 Cinematic (YouTube Thumbnail / X Card)</option>
-                    <option value="4:5">4:5 Vertical Portrait (Instagram Feed)</option>
-                    <option value="9:16">9:16 Story / Shorts (Vertical)</option>
-                  </select>
+                  <div className="relative">
+                    <select
+                      value={imageRegenAspect}
+                      onChange={(e) => setImageRegenAspect(e.target.value)}
+                      className="w-full bg-[#181818] border border-[#333333] rounded-lg pl-3 pr-9 py-2 text-xs text-white appearance-none cursor-pointer focus:outline-none focus:border-white transition-colors"
+                    >
+                      <option value="1:1">1:1 Square (Instagram Feed)</option>
+                      <option value="16:9">16:9 Cinematic (YouTube Thumbnail / X Card)</option>
+                      <option value="4:5">4:5 Vertical Portrait (Instagram Feed)</option>
+                      <option value="9:16">9:16 Story / Shorts (Vertical)</option>
+                    </select>
+                    <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  </div>
                 </div>
               </div>
 

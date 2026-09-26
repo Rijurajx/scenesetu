@@ -23,6 +23,7 @@ import {
   ShieldCheck,
   Sparkles,
   Cpu,
+  ChevronDown,
 } from "lucide-react";
 import { PixelBridgeIcon } from "@/components/common/PixelBridgeIcon";
 import { DocsModal } from "@/components/docs/DocsModal";
@@ -156,10 +157,10 @@ export const AppShell: React.FC<AppShellProps> = ({ children, onReturnToLanding 
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
                   title={item.label}
-                  className={`w-full flex items-center px-3 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer overflow-hidden ${
+                  className={`w-full flex items-center px-3 py-2.5 rounded-xl text-sm font-medium border transition-colors duration-150 cursor-pointer overflow-hidden ${
                     isActive
-                      ? "bg-[#181818] text-white shadow-sm border border-white/10"
-                      : "text-zinc-400 hover:text-zinc-100 hover:bg-white/5"
+                      ? "bg-[#181818] text-white border-white/15 shadow-sm"
+                      : "border-transparent text-zinc-400 hover:text-zinc-100 hover:bg-white/5 hover:border-white/5"
                   }`}
                 >
                   {/* Fixed-size Icon anchor so positioning NEVER shifts between collapsed and expanded */}
@@ -305,18 +306,21 @@ export const AppShell: React.FC<AppShellProps> = ({ children, onReturnToLanding 
                 <span className="text-xs text-zinc-500 uppercase font-semibold font-mono">
                   Campaign:
                 </span>
-                <select
-                  value={activeCampaignId || ""}
-                  onChange={(e) => setActiveCampaignId(e.target.value)}
-                  className="bg-[#141414] border border-[#262626] rounded-md px-3 py-1.5 text-xs font-medium text-zinc-200 focus:outline-none focus:border-white/50 max-w-[220px] truncate"
-                >
-                  {campaigns.length === 0 && <option value="">No campaigns yet</option>}
-                  {campaigns.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.title}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative flex items-center">
+                  <select
+                    value={activeCampaignId || ""}
+                    onChange={(e) => setActiveCampaignId(e.target.value)}
+                    className="bg-[#141414] border border-[#262626] rounded-md pl-3 pr-8 py-1.5 text-xs font-medium text-zinc-200 focus:outline-none focus:border-white/50 max-w-[220px] truncate appearance-none cursor-pointer"
+                  >
+                    {campaigns.length === 0 && <option value="">No campaigns yet</option>}
+                    {campaigns.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.title}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-2.5 pointer-events-none" />
+                </div>
               </div>
 
               {/* Documentation Button */}
