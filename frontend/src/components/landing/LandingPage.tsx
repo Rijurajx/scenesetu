@@ -28,6 +28,7 @@ import {
 import { PixelBridgeIcon } from "@/components/common/PixelBridgeIcon";
 import { InstagramIcon, YouTubeIcon, XTwitterIcon } from "@/components/common/PlatformIcons";
 import { DocsModal } from "@/components/docs/DocsModal";
+import { HowToUseModal } from "./HowToUseModal";
 
 interface LandingPageProps {
   onOpenApp: () => void;
@@ -35,6 +36,7 @@ interface LandingPageProps {
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onOpenApp }) => {
   const [isDocsOpen, setIsDocsOpen] = useState(false);
+  const [isHowToUseOpen, setIsHowToUseOpen] = useState(false);
 
   const handleScrollToFeatures = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -127,6 +129,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenApp }) => {
 
           {/* Right: Docs, GitHub, and Emphasized Start Now Button */}
           <div className="flex items-center space-x-1 sm:space-x-3">
+            {/* How to Use Button */}
+            <button
+              onClick={() => setIsHowToUseOpen(true)}
+              className="hidden md:flex text-xs font-medium text-zinc-300 hover:text-white transition-colors cursor-pointer items-center space-x-1 px-1.5 sm:px-2 py-1 rounded-full hover:bg-white/5 whitespace-nowrap"
+            >
+              <Compass className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-400" />
+              <span>How to Use</span>
+            </button>
+
             {/* Docs Button */}
             <button
               onClick={() => setIsDocsOpen(true)}
@@ -215,11 +226,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenApp }) => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={handleScrollToFeatures}
-              className="group px-4 sm:px-7 py-2.5 sm:py-3 rounded-full bg-black/50 hover:bg-black/80 border border-white/25 hover:border-white/50 hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] text-white font-medium text-xs sm:text-sm transition-all cursor-pointer flex items-center justify-center space-x-1.5 sm:space-x-2 backdrop-blur-md shrink-0 whitespace-nowrap"
+              onClick={() => setIsHowToUseOpen(true)}
+              className="group px-4 sm:px-7 py-2.5 sm:py-3 rounded-full bg-black/50 hover:bg-black/80 border border-white/25 hover:border-white/50 hover:shadow-[0_0_20px_rgba(255,255,255,0.25)] text-white font-medium text-xs sm:text-sm transition-all cursor-pointer flex items-center justify-center space-x-1.5 sm:space-x-2 backdrop-blur-md shrink-0 whitespace-nowrap"
             >
-              <span>Know More</span>
-              <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-400 group-hover:text-white transform transition-transform duration-200 group-hover:translate-y-1" />
+              <Compass className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-400 group-hover:text-white transform transition-transform duration-200 group-hover:rotate-45" />
+              <span>How to Use</span>
             </motion.button>
           </div>
         </motion.div>
@@ -346,6 +357,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenApp }) => {
 
           <div className="flex flex-wrap items-center justify-center gap-6 text-zinc-400">
             <button
+              onClick={() => setIsHowToUseOpen(true)}
+              className="hover:text-white transition-colors cursor-pointer"
+            >
+              How to Use
+            </button>
+            <button
               onClick={() => setIsDocsOpen(true)}
               className="hover:text-white transition-colors cursor-pointer"
             >
@@ -378,6 +395,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenApp }) => {
           </div>
         </div>
       </footer>
+
+      {/* Beginner-Friendly How-To-Use Guide Modal */}
+      <HowToUseModal
+        isOpen={isHowToUseOpen}
+        onClose={() => setIsHowToUseOpen(false)}
+        onStartNow={onOpenApp}
+      />
 
       {/* Official Documentation Modal */}
       <DocsModal isOpen={isDocsOpen} onClose={() => setIsDocsOpen(false)} />
