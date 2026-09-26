@@ -3,7 +3,7 @@ from app.models.enums import ValidationStatus
 from app.validators.common import PlatformValidationOutput, ValidationCheckItem, build_check
 
 class InstagramValidator:
-    ALLOWED_ASPECT_RATIOS = ["1:1", "4:5", "9:16"]
+    ALLOWED_ASPECT_RATIOS = ["1:1", "4:5", "9:16", "16:9"]
     MAX_CAPTION_LENGTH = 2200
     MIN_CAPTION_LENGTH = 5
     MAX_HASHTAGS = 30

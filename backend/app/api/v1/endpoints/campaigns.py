@@ -100,13 +100,17 @@ async def trigger_campaign_generation(
     """
     refinement = payload.refinement_instruction if payload else None
     prior_insights = payload.prior_insight_ids if payload else None
+    aspect_ratios = payload.platform_aspect_ratios if payload else None
+    text_limits = payload.text_limits if payload else None
 
     try:
         run = await GenerationOrchestrator.run_campaign_generation(
             db=db,
             campaign_id=campaign_id,
             refinement_instruction=refinement,
-            prior_insight_ids=prior_insights
+            prior_insight_ids=prior_insights,
+            platform_aspect_ratios=aspect_ratios,
+            text_limits=text_limits
         )
         return {
             "status": "success",

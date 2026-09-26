@@ -38,11 +38,10 @@ class GeminiProvider(LLMProvider):
             }
         }
 
-        models_to_try = [self.model]
-        if "3.8" in self.model:
-            models_to_try.append("gemini-3.5-flash")
-        elif self.model != "gemini-3.8-flash":
-            models_to_try.append("gemini-3.8-flash")
+        models_to_try = []
+        for m in [self.model, "gemini-3.5-flash-lite", "gemini-3.8-flash", "gemini-3.5-flash"]:
+            if m and m not in models_to_try:
+                models_to_try.append(m)
 
         last_error = None
         for candidate_model in models_to_try:
@@ -95,6 +94,7 @@ class GeminiProvider(LLMProvider):
             "- YouTube requires an engaging title (<=100 chars), narrative rich description, and 16:9 thumbnail visual direction.\n"
             "- Instagram requires emotive conversational copy, formatted paragraphs, 5-8 curated hashtags, and 1:1 square visual prompt.\n"
             "- Visual prompts for AI MUST BE DETAILED, cinematic, high-aesthetic descriptions suitable for Flux image models.\n"
+            "- STRICT LENGTH PARAMETERS: If user parameters specify copy length or word limits (e.g. max words or max characters overall or per platform), you MUST RIGIDLY RESPECT those limits and never exceed them. If no limits are given, keep the copy natural, authentic, and flexible.\n"
             "- Return strictly valid JSON matching the requested schema."
         )
 

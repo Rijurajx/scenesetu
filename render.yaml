@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: scenesetu-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: SUPABASE_STORAGE_BUCKET
+        value: scenesetu-assets
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-3.5-flash-lite
+      - key: PIXAZO_API_KEY
+        sync: false
+      - key: PIXAZO_BASE_URL
+        value: https://gateway.pixazo.ai
+      - key: PIXAZO_IMAGE_MODEL
+        value: flux-1-schnell
+      - key: PIXAZO_IMAGE_ENDPOINT
+        value: https://gateway.pixazo.ai/flux-1-schnell/v1/getData
+      - key: PIXAZO_STATUS_ENDPOINT
+        value: https://gateway.pixazo.ai/flux-1-schnell/v1/checkStatus
+      - key: CORS_ORIGINS
+        sync: false

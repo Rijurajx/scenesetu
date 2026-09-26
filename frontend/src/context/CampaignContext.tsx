@@ -20,7 +20,38 @@ interface CampaignContextType {
   setActiveCampaignId: (id: string) => void;
   refreshCampaigns: () => Promise<void>;
   refreshActiveCampaign: () => Promise<void>;
-  triggerGeneration: (instruction?: string) => Promise<void>;
+  triggerGeneration: (
+    instruction?: string,
+    targetCampaignId?: string,
+    aspectRatios?: Record<string, string>,
+    textLimits?: Record<string, any>
+  ) => Promise<void>;
+  updatePostContent: (
+    postId: string,
+    data: {
+      title?: string | null;
+      copy_primary?: string;
+      copy_secondary?: string | null;
+      hashtags?: string[];
+      cta?: string;
+    }
+  ) => Promise<PlatformPost>;
+  regeneratePostText: (
+    postId: string,
+    options?: {
+      instruction?: string;
+      max_words?: number;
+      max_characters?: number;
+    }
+  ) => Promise<PlatformPost>;
+  regeneratePostImage: (
+    postId: string,
+    options?: {
+      prompt?: string;
+      aspect_ratio?: string;
+    }
+  ) => Promise<PlatformPost>;
+  uploadPostAsset: (postId: string, file: File) => Promise<PlatformPost>;
   selectInsightForNextBrief: (insight: Insight) => void;
   selectedPriorInsightIds: string[];
   setSelectedPriorInsightIds: React.Dispatch<React.SetStateAction<string[]>>;
@@ -89,23 +120,38 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
   }, [activeCampaignId]);
 
   // Trigger Content Generation Pipeline (Critical Slice)
-  const triggerGeneration = async (instruction?: string) => {
-    if (!activeCampaignId) return;
+  const triggerGeneration = async (
+    instruction?: string,
+    targetCampaignId?: string,
+    aspectRatios?: Record<string, string>,
+    textLimits?: Record<string, any>
+  ) => {
+    const cid = targetCampaignId || activeCampaignId;
+    if (!cid) return;
+
+    if (targetCampaignId) {
+      setActiveCampaignId(targetCampaignId);
+    }
+    
     setIsGenerating(true);
     setGenerationProgress("Starting AI Campaign Intelligence Pipeline...");
     setActiveTab("studio");
 
     try {
       const result = await api.triggerGeneration(
-        activeCampaignId,
+        cid,
         instruction,
-        selectedPriorInsightIds.length > 0 ? selectedPriorInsightIds : undefined
+        selectedPriorInsightIds.length > 0 ? selectedPriorInsightIds : undefined,
+        aspectRatios,
+        textLimits
       );
 
-      setGenerationProgress("Synthesizing creative assets & platform adaptations...");
+      setGenerationProgress("Generating visual assets & verifying platform constraints...");
 
       // Reload campaign with new posts and assets
-      await refreshActiveCampaign();
+      const updatedCampaign = await api.getCampaign(cid);
+      setActiveCampaign(updatedCampaign);
+      await refreshCampaigns();
       setGenerationProgress("Generation and deterministic validation completed!");
       
       if (result.generation_run_id) {
@@ -118,6 +164,84 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  // Direct In-Place Post Editing & Instant Supabase Persistence
+  const updatePostContent = async (
+    postId: string,
+    data: {
+      title?: string | null;
+      copy_primary?: string;
+      copy_secondary?: string | null;
+      hashtags?: string[];
+      cta?: string;
+    }
+  ) => {
+    const updatedPost = await api.updatePostContent(postId, data);
+    setActiveCampaign((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        posts: prev.posts?.map((p) => (p.id === postId ? updatedPost : p)) || [],
+      };
+    });
+    refreshActiveCampaign();
+    return updatedPost;
+  };
+
+  // Individual Text / Copy Regeneration
+  const regeneratePostText = async (
+    postId: string,
+    options?: {
+      instruction?: string;
+      max_words?: number;
+      max_characters?: number;
+    }
+  ) => {
+    const updatedPost = await api.regeneratePostText(postId, options);
+    setActiveCampaign((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        posts: prev.posts?.map((p) => (p.id === postId ? updatedPost : p)) || [],
+      };
+    });
+    refreshActiveCampaign();
+    return updatedPost;
+  };
+
+  // Individual Image Regeneration
+  const regeneratePostImage = async (
+    postId: string,
+    options?: {
+      prompt?: string;
+      aspect_ratio?: string;
+    }
+  ) => {
+    const updatedPost = await api.regeneratePostImage(postId, options);
+    setActiveCampaign((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        posts: prev.posts?.map((p) => (p.id === postId ? updatedPost : p)) || [],
+      };
+    });
+    refreshActiveCampaign();
+    return updatedPost;
+  };
+
+  // Upload Custom Asset to Replace AI Image
+  const uploadPostAsset = async (postId: string, file: File) => {
+    const updatedPost = await api.uploadPostAsset(postId, file);
+    setActiveCampaign((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        posts: prev.posts?.map((p) => (p.id === postId ? updatedPost : p)) || [],
+      };
+    });
+    refreshActiveCampaign();
+    return updatedPost;
   };
 
   const selectInsightForNextBrief = (insight: Insight) => {
@@ -146,6 +270,10 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
         refreshCampaigns,
         refreshActiveCampaign,
         triggerGeneration,
+        updatePostContent,
+        regeneratePostText,
+        regeneratePostImage,
+        uploadPostAsset,
         selectInsightForNextBrief,
       }}
     >

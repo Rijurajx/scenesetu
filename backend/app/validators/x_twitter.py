@@ -3,7 +3,7 @@ from app.models.enums import ValidationStatus
 from app.validators.common import PlatformValidationOutput, ValidationCheckItem, build_check
 
 class XTwitterValidator:
-    ALLOWED_ASPECT_RATIOS = ["16:9", "1:1"]
+    ALLOWED_ASPECT_RATIOS = ["16:9", "1:1", "4:5"]
     MAX_TWEET_LENGTH = 280
     MIN_TWEET_LENGTH = 5
     MAX_HASHTAGS = 4

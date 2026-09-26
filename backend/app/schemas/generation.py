@@ -5,6 +5,8 @@ from pydantic import BaseModel, Field, ConfigDict
 class GenerationTriggerRequest(BaseModel):
     refinement_instruction: Optional[str] = Field(None, description="Optional refinement direction when regenerating")
     prior_insight_ids: Optional[list[str]] = Field(None, description="Explicit past insight IDs to feed into this generation")
+    platform_aspect_ratios: Optional[dict[str, str]] = Field(None, description="Custom aspect ratio overrides per platform")
+    text_limits: Optional[dict[str, Any]] = Field(None, description="Optional word or character limits")
 
 class GenerationRunResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)

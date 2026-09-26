@@ -3,7 +3,7 @@ from app.models.enums import ValidationStatus
 from app.validators.common import PlatformValidationOutput, ValidationCheckItem, build_check
 
 class YouTubeValidator:
-    ALLOWED_ASPECT_RATIOS = ["16:9", "9:16"]
+    ALLOWED_ASPECT_RATIOS = ["16:9", "1:1", "9:16"]
     MAX_TITLE_LENGTH = 100
     MIN_TITLE_LENGTH = 3
     MAX_DESCRIPTION_LENGTH = 5000

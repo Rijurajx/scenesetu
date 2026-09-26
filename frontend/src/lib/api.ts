@@ -55,6 +55,27 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
   return response.json();
 }
 
+async function uploadFile<T>(endpoint: string, formData: FormData): Promise<T> {
+  const url = `${API_BASE_URL}${endpoint}`;
+  const response = await fetch(url, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+    try {
+      const errorJson = await response.json();
+      errorMessage = errorJson.detail || errorJson.error || errorMessage;
+    } catch {
+      // ignore
+    }
+    throw new Error(errorMessage);
+  }
+
+  return response.json();
+}
+
 export const api = {
   // Diagnostics
   healthCheck: () => request<{ status: string }>("/api/v1/health"),
@@ -87,7 +108,9 @@ export const api = {
   triggerGeneration: (
     campaignId: string,
     refinementInstruction?: string,
-    priorInsightIds?: string[]
+    priorInsightIds?: string[],
+    platformAspectRatios?: Record<string, string>,
+    textLimits?: Record<string, any>
   ) =>
     request<{
       status: string;
@@ -101,14 +124,62 @@ export const api = {
       body: JSON.stringify({
         refinement_instruction: refinementInstruction || null,
         prior_insight_ids: priorInsightIds || null,
+        platform_aspect_ratios: platformAspectRatios || null,
+        text_limits: textLimits || null,
       }),
     }),
 
   getGenerationRun: (generationId: string) =>
     request<GenerationRun>(`/api/v1/generations/${generationId}`),
 
-  // Posts & Refinement
+  // Posts, Direct Editing & Individual Regeneration
   getPost: (postId: string) => request<PlatformPost>(`/api/v1/posts/${postId}`),
+
+  updatePostContent: (
+    postId: string,
+    data: {
+      title?: string | null;
+      copy_primary?: string;
+      copy_secondary?: string | null;
+      hashtags?: string[];
+      cta?: string;
+    }
+  ) =>
+    request<PlatformPost>(`/api/v1/posts/${postId}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+
+  regeneratePostText: (
+    postId: string,
+    data?: {
+      instruction?: string;
+      max_words?: number;
+      max_characters?: number;
+    }
+  ) =>
+    request<PlatformPost>(`/api/v1/posts/${postId}/regenerate-text`, {
+      method: "POST",
+      body: JSON.stringify(data || {}),
+    }),
+
+  regeneratePostImage: (
+    postId: string,
+    data?: {
+      prompt?: string;
+      aspect_ratio?: string;
+    }
+  ) =>
+    request<PlatformPost>(`/api/v1/posts/${postId}/regenerate-image`, {
+      method: "POST",
+      body: JSON.stringify(data || {}),
+    }),
+
+  uploadPostAsset: (postId: string, file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return uploadFile<PlatformPost>(`/api/v1/posts/${postId}/upload-asset`, formData);
+  },
 
   refinePost: (postId: string, refinementInstruction: string) =>
     request<PlatformPost>(`/api/v1/posts/${postId}/refine`, {

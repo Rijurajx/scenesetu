@@ -1,5 +1,10 @@
+import asyncio
+import os
+import io
+import time
 from datetime import datetime, timezone
 from typing import Optional, List, Dict, Any
+from PIL import Image
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -14,6 +19,7 @@ from app.models.entities import (
 from app.schemas.ai import FullGenerationPlanSchema, PlatformStrategySchema
 from app.ai.factory import get_llm_provider, get_visual_provider
 from app.validators.engine import ValidationEngine
+from app.services.storage import storage_service
 
 def utcnow():
     return datetime.now(timezone.utc)
@@ -25,7 +31,9 @@ class GenerationOrchestrator:
         db: AsyncSession,
         campaign_id: str,
         refinement_instruction: Optional[str] = None,
-        prior_insight_ids: Optional[List[str]] = None
+        prior_insight_ids: Optional[List[str]] = None,
+        platform_aspect_ratios: Optional[Dict[str, str]] = None,
+        text_limits: Optional[Dict[str, Any]] = None
     ) -> GenerationRun:
         """
         Executes the critical vertical slice:
@@ -58,7 +66,6 @@ class GenerationOrchestrator:
             ]
 
         # 3. Create GenerationRun in GENERATING state
-        # Count existing runs
         count_stmt = select(GenerationRun).where(GenerationRun.campaign_id == campaign_id)
         count_res = await db.execute(count_stmt)
         run_number = len(count_res.scalars().all()) + 1
@@ -82,6 +89,26 @@ class GenerationOrchestrator:
             brief_to_send = campaign.brief
             if refinement_instruction:
                 brief_to_send += f"\n\nUSER REFINEMENT INSTRUCTION:\n{refinement_instruction}"
+            
+            # Optional text limit constraints requested by user in Brief Studio
+            if text_limits:
+                limit_lines = []
+                if text_limits.get("max_words"):
+                    limit_lines.append(f"- Default maximum word count per primary copy: {text_limits['max_words']} words")
+                if text_limits.get("max_characters"):
+                    limit_lines.append(f"- Default maximum character count per primary copy: {text_limits['max_characters']} characters")
+                if text_limits.get("instagram_max_words"):
+                    limit_lines.append(f"- INSTAGRAM: Primary caption copy MUST NOT exceed {text_limits['instagram_max_words']} words")
+                if text_limits.get("instagram_max_chars"):
+                    limit_lines.append(f"- INSTAGRAM: Primary caption copy MUST NOT exceed {text_limits['instagram_max_chars']} characters")
+                if text_limits.get("youtube_title_max_chars"):
+                    limit_lines.append(f"- YOUTUBE: Video title MUST NOT exceed {text_limits['youtube_title_max_chars']} characters")
+                if text_limits.get("youtube_max_words"):
+                    limit_lines.append(f"- YOUTUBE: Description body copy MUST NOT exceed {text_limits['youtube_max_words']} words")
+                if text_limits.get("x_max_chars"):
+                    limit_lines.append(f"- X (TWITTER): Total post copy MUST NOT exceed {text_limits['x_max_chars']} characters")
+                if limit_lines:
+                    brief_to_send += f"\n\nSTRICT LENGTH CONSTRAINTS (USER PARAMETERS - RIGIDLY ENFORCE):\n" + "\n".join(limit_lines)
 
             plan: FullGenerationPlanSchema = await llm.generate_campaign_plan(
                 brief=brief_to_send,
@@ -91,23 +118,73 @@ class GenerationOrchestrator:
                 prior_insights=prior_insights_data
             )
 
+            # Strict programmatic adherence guarantee for requested limits
+            if text_limits:
+                for p_plan in plan.platform_plans:
+                    p_name = p_plan.platform.value
+                    if p_name == "instagram":
+                        max_w = text_limits.get("instagram_max_words") or text_limits.get("max_words")
+                        if max_w and p_plan.copy_primary:
+                            words = p_plan.copy_primary.split()
+                            if len(words) > int(max_w):
+                                p_plan.copy_primary = " ".join(words[:int(max_w)])
+                        max_c = text_limits.get("instagram_max_chars") or text_limits.get("max_characters")
+                        if max_c and p_plan.copy_primary and len(p_plan.copy_primary) > int(max_c):
+                            p_plan.copy_primary = p_plan.copy_primary[:int(max_c)].rstrip()
+                    elif p_name == "youtube":
+                        max_t = text_limits.get("youtube_title_max_chars")
+                        if max_t and p_plan.copy_headline and len(p_plan.copy_headline) > int(max_t):
+                            p_plan.copy_headline = p_plan.copy_headline[:int(max_t)].rstrip()
+                        max_w = text_limits.get("youtube_max_words") or text_limits.get("max_words")
+                        if max_w and p_plan.copy_primary:
+                            words = p_plan.copy_primary.split()
+                            if len(words) > int(max_w):
+                                p_plan.copy_primary = " ".join(words[:int(max_w)])
+                    elif p_name in ("x_twitter", "twitter"):
+                        max_c = text_limits.get("x_max_chars") or text_limits.get("max_characters")
+                        if max_c and p_plan.copy_primary and len(p_plan.copy_primary) > int(max_c):
+                            p_plan.copy_primary = p_plan.copy_primary[:int(max_c)].rstrip()
+
             run.strategy_payload = plan.model_dump()
             run.status = GenerationRunStatus.VALIDATING.value
             await db.commit()
 
             all_valid = True
 
-            # 5. Process each platform plan (Instagram, YouTube, X)
+            # 5. Process visual generation for each platform plan sequentially (Instagram, YouTube, X)
+            generated_assets = {}
             for p_plan in plan.platform_plans:
                 platform_name = p_plan.platform.value
+                target_aspect = (platform_aspect_ratios or {}).get(platform_name) or p_plan.recommended_aspect_ratio
+                logger.info(f"Generating visual asset for {platform_name} [{target_aspect}] with prompt: {p_plan.visual_prompt_for_ai[:60]}...")
+                visual_result = None
+                try:
+                    visual_result = await visual_provider.generate_image(
+                        prompt=p_plan.visual_prompt_for_ai,
+                        aspect_ratio=target_aspect,
+                        negative_prompt=p_plan.negative_visual_prompt
+                    )
+                except Exception as exc:
+                    logger.error(f"Visual generation failed for {platform_name}: {exc}")
+                    # If an image generation hit gateway issues, reuse a real generated visual
+                    if target_aspect in generated_assets:
+                        logger.info(f"Reusing real {target_aspect} visual from previous platform for {platform_name}")
+                        visual_result = generated_assets[target_aspect]
+                    elif generated_assets:
+                        first_real = next(iter(generated_assets.values()))
+                        logger.info(f"Reusing real visual from previous platform for {platform_name}")
+                        visual_result = first_real
+                    else:
+                        visual_result = visual_provider._generate_fallback_asset(
+                            prompt=p_plan.visual_prompt_for_ai,
+                            aspect_ratio=target_aspect,
+                            width=896 if target_aspect == "16:9" else 768,
+                            height=512 if target_aspect == "16:9" else 768
+                        )
 
-                # 5a. Visual Generation via Hosted Provider
-                logger.info(f"Generating visual asset for {platform_name} with prompt: {p_plan.visual_prompt_for_ai[:60]}...")
-                visual_result = await visual_provider.generate_image(
-                    prompt=p_plan.visual_prompt_for_ai,
-                    aspect_ratio=p_plan.recommended_aspect_ratio,
-                    negative_prompt=p_plan.negative_visual_prompt
-                )
+                # Cache real cloud-stored assets
+                if visual_result and visual_result.media_url and ("supabase.co" in visual_result.media_url or "r2.dev" in visual_result.media_url):
+                    generated_assets[target_aspect] = visual_result
 
                 # 5b. Persist Asset record
                 asset = Asset(
@@ -330,3 +407,392 @@ class GenerationOrchestrator:
         )
         res_reload = await db.execute(stmt_reload)
         return res_reload.scalar_one()
+
+    @classmethod
+    async def update_single_post(
+        cls,
+        db: AsyncSession,
+        post_id: str,
+        title: Optional[str] = None,
+        copy_primary: Optional[str] = None,
+        copy_secondary: Optional[str] = None,
+        hashtags: Optional[List[str]] = None,
+        cta: Optional[str] = None
+    ) -> PlatformPost:
+        """
+        Direct manual editing of a post's content by the user.
+        Re-validates deterministically and persists immediately to Supabase database.
+        """
+        stmt = (
+            select(PlatformPost)
+            .where(PlatformPost.id == post_id)
+            .options(selectinload(PlatformPost.asset), selectinload(PlatformPost.validation_results))
+        )
+        res = await db.execute(stmt)
+        post = res.scalar_one_or_none()
+        if not post:
+            raise ValueError(f"Post with ID {post_id} not found.")
+
+        if title is not None:
+            post.title = title
+        if copy_primary is not None:
+            post.copy_primary = copy_primary
+        if copy_secondary is not None:
+            post.copy_secondary = copy_secondary
+        if hashtags is not None:
+            post.hashtags = hashtags
+        if cta is not None:
+            post.cta = cta
+
+        post.updated_at = utcnow()
+
+        # Re-run deterministic platform validation
+        val_out = ValidationEngine.validate_post(
+            platform=post.platform,
+            copy_primary=post.copy_primary,
+            cta=post.cta,
+            hashtags=post.hashtags,
+            title=post.title,
+            asset_aspect_ratio=post.asset.aspect_ratio if post.asset else None,
+            asset_file_size=post.asset.file_size_bytes if post.asset else None,
+            asset_mime_type=post.asset.mime_type if post.asset else None
+        )
+
+        post.status = (
+            PostStatus.PENDING_REVIEW.value
+            if val_out.status == ValidationStatus.PASSED
+            else PostStatus.FAILED.value
+        )
+
+        # Record validation result
+        val_result = ValidationResult(
+            post_id=post.id,
+            status=val_out.status.value,
+            rules_checked=[check.model_dump() for check in val_out.checks],
+            error_summary=val_out.error_summary
+        )
+        db.add(val_result)
+        await db.commit()
+
+        # Reload with full relations
+        stmt_reload = (
+            select(PlatformPost)
+            .where(PlatformPost.id == post.id)
+            .options(
+                selectinload(PlatformPost.asset),
+                selectinload(PlatformPost.validation_results),
+                selectinload(PlatformPost.approvals),
+                selectinload(PlatformPost.schedule),
+                selectinload(PlatformPost.publication)
+            )
+        )
+        res_reload = await db.execute(stmt_reload)
+        return res_reload.scalar_one()
+
+    @classmethod
+    async def regenerate_post_text(
+        cls,
+        db: AsyncSession,
+        post_id: str,
+        instruction: Optional[str] = None,
+        max_words: Optional[int] = None,
+        max_characters: Optional[int] = None
+    ) -> PlatformPost:
+        """
+        Regenerates only the text/copy for a specific platform post while keeping the visual asset.
+        """
+        stmt = (
+            select(PlatformPost)
+            .where(PlatformPost.id == post_id)
+            .options(selectinload(PlatformPost.asset))
+        )
+        res = await db.execute(stmt)
+        post = res.scalar_one_or_none()
+        if not post:
+            raise ValueError(f"Post with ID {post_id} not found.")
+
+        llm = get_llm_provider()
+
+        feedback = instruction or "Make this copy fresh, engaging, and culturally resonant."
+        if max_words:
+            feedback += f" Strictly keep the copy under {max_words} words."
+        if max_characters:
+            feedback += f" Strictly keep the copy under {max_characters} characters."
+
+        orig_prompt = post.asset.prompt if post.asset else "No prompt"
+        refinement_data = await llm.refine_post(
+            platform=post.platform,
+            original_copy=post.copy_primary,
+            original_prompt=orig_prompt,
+            human_feedback=feedback
+        )
+
+        post.copy_primary = refinement_data.new_copy_primary
+        # Strict programmatic trimming guarantee if user set limits
+        if max_words:
+            words = post.copy_primary.split()
+            if len(words) > max_words:
+                post.copy_primary = " ".join(words[:max_words])
+        if max_characters and len(post.copy_primary) > max_characters:
+            post.copy_primary = post.copy_primary[:max_characters].rstrip()
+
+        if refinement_data.new_cta:
+            post.cta = refinement_data.new_cta
+        if refinement_data.new_hashtags:
+            post.hashtags = refinement_data.new_hashtags
+        post.updated_at = utcnow()
+
+        # Re-run validation
+        val_out = ValidationEngine.validate_post(
+            platform=post.platform,
+            copy_primary=post.copy_primary,
+            cta=post.cta,
+            hashtags=post.hashtags,
+            title=post.title,
+            asset_aspect_ratio=post.asset.aspect_ratio if post.asset else None,
+            asset_file_size=post.asset.file_size_bytes if post.asset else None,
+            asset_mime_type=post.asset.mime_type if post.asset else None
+        )
+
+        post.status = (
+            PostStatus.PENDING_REVIEW.value
+            if val_out.status == ValidationStatus.PASSED
+            else PostStatus.FAILED.value
+        )
+
+        val_result = ValidationResult(
+            post_id=post.id,
+            status=val_out.status.value,
+            rules_checked=[check.model_dump() for check in val_out.checks],
+            error_summary=val_out.error_summary
+        )
+        db.add(val_result)
+        await db.commit()
+
+        stmt_reload = (
+            select(PlatformPost)
+            .where(PlatformPost.id == post.id)
+            .options(
+                selectinload(PlatformPost.asset),
+                selectinload(PlatformPost.validation_results),
+                selectinload(PlatformPost.approvals),
+                selectinload(PlatformPost.schedule),
+                selectinload(PlatformPost.publication)
+            )
+        )
+        res_reload = await db.execute(stmt_reload)
+        return res_reload.scalar_one()
+
+    @classmethod
+    async def regenerate_post_image(
+        cls,
+        db: AsyncSession,
+        post_id: str,
+        prompt: Optional[str] = None,
+        aspect_ratio: Optional[str] = None
+    ) -> PlatformPost:
+        """
+        Regenerates only the visual asset for a specific platform post using Pixazo/Flux Schnell.
+        """
+        stmt = (
+            select(PlatformPost)
+            .where(PlatformPost.id == post_id)
+            .options(selectinload(PlatformPost.asset))
+        )
+        res = await db.execute(stmt)
+        post = res.scalar_one_or_none()
+        if not post:
+            raise ValueError(f"Post with ID {post_id} not found.")
+
+        visual_provider = get_visual_provider()
+        prompt_to_use = prompt or (post.asset.prompt if post.asset else f"Cinematic key artwork for {post.title or post.copy_primary[:100]}")
+        aspect_to_use = aspect_ratio or (post.asset.aspect_ratio if post.asset else ("16:9" if post.platform in ("youtube", "x_twitter") else "1:1"))
+
+        visual_result = await visual_provider.generate_image(
+            prompt=prompt_to_use,
+            aspect_ratio=aspect_to_use
+        )
+
+        new_asset = Asset(
+            generation_run_id=post.generation_run_id,
+            platform=post.platform,
+            asset_type="image",
+            provider=visual_result.provider,
+            model_name=visual_result.model_name,
+            prompt=visual_result.prompt,
+            negative_prompt=visual_result.negative_prompt,
+            storage_path=visual_result.media_url,
+            public_url=visual_result.media_url,
+            width=visual_result.width,
+            height=visual_result.height,
+            aspect_ratio=visual_result.aspect_ratio,
+            file_size_bytes=visual_result.file_size_bytes,
+            mime_type=visual_result.mime_type
+        )
+        db.add(new_asset)
+        await db.flush()
+
+        post.asset = new_asset
+        post.asset_id = new_asset.id
+        post.updated_at = utcnow()
+
+        # Re-run validation
+        val_out = ValidationEngine.validate_post(
+            platform=post.platform,
+            copy_primary=post.copy_primary,
+            cta=post.cta,
+            hashtags=post.hashtags,
+            title=post.title,
+            asset_aspect_ratio=new_asset.aspect_ratio,
+            asset_file_size=new_asset.file_size_bytes,
+            asset_mime_type=new_asset.mime_type
+        )
+
+        post.status = (
+            PostStatus.PENDING_REVIEW.value
+            if val_out.status == ValidationStatus.PASSED
+            else PostStatus.FAILED.value
+        )
+
+        val_result = ValidationResult(
+            post_id=post.id,
+            status=val_out.status.value,
+            rules_checked=[check.model_dump() for check in val_out.checks],
+            error_summary=val_out.error_summary
+        )
+        db.add(val_result)
+        await db.commit()
+
+        stmt_reload = (
+            select(PlatformPost)
+            .where(PlatformPost.id == post.id)
+            .options(
+                selectinload(PlatformPost.asset),
+                selectinload(PlatformPost.validation_results),
+                selectinload(PlatformPost.approvals),
+                selectinload(PlatformPost.schedule),
+                selectinload(PlatformPost.publication)
+            )
+        )
+        res_reload = await db.execute(stmt_reload)
+        return res_reload.scalar_one()
+
+    @classmethod
+    async def upload_post_asset(
+        cls,
+        db: AsyncSession,
+        post_id: str,
+        file_name: str,
+        file_bytes: bytes,
+        mime_type: str = "image/jpeg"
+    ) -> PlatformPost:
+        """
+        Replaces the visual asset of a post with a custom user-uploaded file.
+        Persists media via StorageService to Supabase Storage, generates an Asset record,
+        links to the post, and re-runs deterministic platform checks.
+        """
+        stmt = (
+            select(PlatformPost)
+            .where(PlatformPost.id == post_id)
+            .options(selectinload(PlatformPost.asset))
+        )
+        res = await db.execute(stmt)
+        post = res.scalar_one_or_none()
+        if not post:
+            raise ValueError(f"Post with ID {post_id} not found.")
+
+        # Determine dimensions and calculate standard platform aspect ratio
+        try:
+            img = Image.open(io.BytesIO(file_bytes))
+            width, height = img.size
+            if img.format:
+                mime_type = f"image/{img.format.lower()}"
+            
+            # Map to nearest platform standard aspect ratio
+            ratio = width / height if height > 0 else 1.0
+            if abs(ratio - 1.0) < 0.2:
+                aspect_ratio = "1:1"
+            elif abs(ratio - (16 / 9)) < 0.25:
+                aspect_ratio = "16:9"
+            elif abs(ratio - (4 / 5)) < 0.15:
+                aspect_ratio = "4:5"
+            elif abs(ratio - (9 / 16)) < 0.2:
+                aspect_ratio = "9:16"
+            else:
+                aspect_ratio = "16:9" if post.platform in ("youtube", "x_twitter") else "1:1"
+        except Exception as e:
+            logger.warning(f"Could not parse image metadata for uploaded file: {e}")
+            width, height = (1280, 720) if post.platform in ("youtube", "x_twitter") else (1080, 1080)
+            aspect_ratio = "16:9" if post.platform in ("youtube", "x_twitter") else "1:1"
+
+        # Sanitize filename and store via StorageService (Supabase Storage / local fallback)
+        ext = os.path.splitext(file_name)[1] or ".jpg"
+        clean_storage_filename = f"user_upload_{post.id[:8]}_{int(time.time())}{ext}"
+        storage_path, public_url = await storage_service.store_media(
+            clean_storage_filename, file_bytes, mime_type=mime_type
+        )
+
+        new_asset = Asset(
+            generation_run_id=post.generation_run_id,
+            platform=post.platform,
+            asset_type="image",
+            provider="user_upload",
+            model_name="custom_upload",
+            prompt=f"User uploaded image: {file_name}",
+            negative_prompt="",
+            storage_path=storage_path,
+            public_url=public_url,
+            width=width,
+            height=height,
+            aspect_ratio=aspect_ratio,
+            file_size_bytes=len(file_bytes),
+            mime_type=mime_type
+        )
+        db.add(new_asset)
+        await db.flush()
+
+        post.asset = new_asset
+        post.asset_id = new_asset.id
+        post.updated_at = utcnow()
+
+        # Re-run deterministic platform validation
+        val_out = ValidationEngine.validate_post(
+            platform=post.platform,
+            copy_primary=post.copy_primary,
+            cta=post.cta,
+            hashtags=post.hashtags,
+            title=post.title,
+            asset_aspect_ratio=new_asset.aspect_ratio,
+            asset_file_size=new_asset.file_size_bytes,
+            asset_mime_type=new_asset.mime_type
+        )
+
+        post.status = (
+            PostStatus.PENDING_REVIEW.value
+            if val_out.status == ValidationStatus.PASSED
+            else PostStatus.FAILED.value
+        )
+
+        val_result = ValidationResult(
+            post_id=post.id,
+            status=val_out.status.value,
+            rules_checked=[check.model_dump() for check in val_out.checks],
+            error_summary=val_out.error_summary
+        )
+        db.add(val_result)
+        await db.commit()
+
+        stmt_reload = (
+            select(PlatformPost)
+            .where(PlatformPost.id == post.id)
+            .options(
+                selectinload(PlatformPost.asset),
+                selectinload(PlatformPost.validation_results),
+                selectinload(PlatformPost.approvals),
+                selectinload(PlatformPost.schedule),
+                selectinload(PlatformPost.publication)
+            )
+        )
+        res_reload = await db.execute(stmt_reload)
+        return res_reload.scalar_one()
+

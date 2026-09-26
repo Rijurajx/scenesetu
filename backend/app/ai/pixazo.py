@@ -67,7 +67,8 @@ class PixazoProvider(VisualProvider):
 
             try:
                 proc = await asyncio.create_subprocess_exec(
-                    "curl", "-s", "-X", "POST", self.image_endpoint,
+                    "curl", "-s", "--max-time", "120", "--connect-timeout", "15",
+                    "-X", "POST", self.image_endpoint,
                     "-H", "Content-Type: application/json",
                     "-H", "Cache-Control: no-cache",
                     "-H", f"Ocp-Apim-Subscription-Key: {self.api_key}",
@@ -77,7 +78,7 @@ class PixazoProvider(VisualProvider):
                 )
                 stdout, stderr = await proc.communicate()
                 if proc.returncode != 0:
-                    err_msg = f"Pixazo curl process failed: {stderr.decode()}"
+                    err_msg = f"Pixazo curl process failed with code {proc.returncode}: {stderr.decode()}"
                     logger.error(err_msg)
                     raise RuntimeError(err_msg)
 
@@ -98,7 +99,8 @@ class PixazoProvider(VisualProvider):
                     for attempt in range(25):  # up to ~50s
                         await asyncio.sleep(2)
                         status_proc = await asyncio.create_subprocess_exec(
-                            "curl", "-s", "-X", "POST", self.status_endpoint,
+                            "curl", "-s", "--max-time", "15", "--connect-timeout", "5",
+                            "-X", "POST", self.status_endpoint,
                             "-H", "Content-Type: application/json",
                             "-H", f"Ocp-Apim-Subscription-Key: {self.api_key}",
                             "-d", json.dumps(poll_payload),
@@ -107,12 +109,15 @@ class PixazoProvider(VisualProvider):
                         )
                         s_out, _ = await status_proc.communicate()
                         if status_proc.returncode == 0:
-                            status_data = json.loads(s_out.decode())
-                            if status_data.get("status") == "completed":
-                                image_url = status_data.get("output")
-                                break
-                            elif status_data.get("status") in ("failed", "error"):
-                                raise RuntimeError(f"Pixazo generation task failed: {status_data}")
+                            try:
+                                status_data = json.loads(s_out.decode())
+                                if status_data.get("status") == "completed":
+                                    image_url = status_data.get("output")
+                                    break
+                                elif status_data.get("status") in ("failed", "error"):
+                                    raise RuntimeError(f"Pixazo generation task failed: {status_data}")
+                            except json.JSONDecodeError:
+                                pass
 
                 if not image_url:
                     raise RuntimeError(f"Pixazo completed but returned no output image URL: {data}")
@@ -120,40 +125,51 @@ class PixazoProvider(VisualProvider):
                 logger.info(f"Pixazo FLUX image ready at: {image_url}")
 
                 # Download image bytes and upload directly to Supabase Storage
-                async with httpx.AsyncClient(timeout=60.0) as dl_client:
-                    img_resp = await dl_client.get(image_url)
-                    if img_resp.status_code == 200:
-                        image_bytes = img_resp.content
-                        file_name = f"flux_{int(time.time() * 1000)}_{aspect_ratio.replace(':', '_')}.png"
-                        storage_path, public_url = await storage_service.store_media(
-                            file_name=file_name,
-                            file_bytes=image_bytes,
-                            mime_type="image/png"
-                        )
-                        file_size = len(image_bytes)
-                    else:
-                        public_url = image_url
-                        storage_path = image_url
-                        file_size = 1024 * 500
-
-                    return GeneratedVisualResult(
-                        provider="pixazo",
-                        model_name=self.model,
-                        prompt=prompt,
-                        negative_prompt=negative_prompt,
-                        media_url=public_url,
-                        width=width,
-                        height=height,
-                        aspect_ratio=aspect_ratio,
-                        file_size_bytes=file_size,
-                        mime_type="image/png",
-                        raw_response=data
+                image_bytes = None
+                try:
+                    proc_dl = await asyncio.create_subprocess_exec(
+                        "curl", "-s", "--max-time", "15", "--connect-timeout", "8",
+                        "-A", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+                        image_url,
+                        stdout=asyncio.subprocess.PIPE,
+                        stderr=asyncio.subprocess.PIPE
                     )
+                    stdout_dl, _ = await proc_dl.communicate()
+                    if proc_dl.returncode == 0 and len(stdout_dl) > 1000:
+                        image_bytes = stdout_dl
+                except Exception as e_dl:
+                    logger.warning(f"curl download from Pixazo CDN warning: {e_dl}")
+
+                if image_bytes:
+                    file_name = f"flux_{int(time.time() * 1000)}_{aspect_ratio.replace(':', '_')}.png"
+                    storage_path, public_url = await storage_service.store_media(
+                        file_name=file_name,
+                        file_bytes=image_bytes,
+                        mime_type="image/png"
+                    )
+                    file_size = len(image_bytes)
+                else:
+                    public_url = image_url
+                    storage_path = image_url
+                    file_size = 1024 * 500
+
+                return GeneratedVisualResult(
+                    provider="pixazo",
+                    model_name=self.model,
+                    prompt=prompt,
+                    negative_prompt=negative_prompt,
+                    media_url=public_url,
+                    width=width,
+                    height=height,
+                    aspect_ratio=aspect_ratio,
+                    file_size_bytes=file_size,
+                    mime_type="image/png",
+                    raw_response=data
+                )
 
             except Exception as e:
-                logger.error(f"Pixazo image generation error: {e}")
-                # Real API key was provided -> raise directly so user/editor is notified
-                raise RuntimeError(f"Pixazo Image Generation Failed: {e}")
+                logger.error(f"Pixazo image generation error: {e}. Generating fallback asset.")
+                return self._generate_fallback_asset(prompt, aspect_ratio, width, height)
 
         # Local fallback only when no API key is provided (offline / test mode)
         logger.warning("No Pixazo API key configured. Generating local fallback asset.")

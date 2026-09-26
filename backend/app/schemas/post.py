@@ -76,6 +76,22 @@ class PublicationResponse(BaseModel):
 class RefinePostRequest(BaseModel):
     refinement_instruction: str = Field(..., min_length=3, description="Human instruction on how to refine/regenerate this post")
 
+class UpdatePostRequest(BaseModel):
+    title: Optional[str] = None
+    copy_primary: Optional[str] = None
+    copy_secondary: Optional[str] = None
+    hashtags: Optional[List[str]] = None
+    cta: Optional[str] = None
+
+class RegenerateTextRequest(BaseModel):
+    instruction: Optional[str] = Field(None, description="Optional refinement instruction for copy regeneration")
+    max_words: Optional[int] = None
+    max_characters: Optional[int] = None
+
+class RegenerateImageRequest(BaseModel):
+    prompt: Optional[str] = Field(None, description="Custom prompt or refinement for image generation")
+    aspect_ratio: Optional[str] = Field(None, description="Aspect ratio to use (e.g. 1:1, 16:9, 4:5, 9:16)")
+
 class PlatformPostResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
