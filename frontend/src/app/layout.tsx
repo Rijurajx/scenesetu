@@ -69,7 +69,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark h-full">
+    <html lang="en" className="dark h-full" data-scroll-behavior="smooth">
       <body className="min-h-full bg-black text-white flex flex-col font-sans antialiased selection:bg-white/20">
         <Providers>{children}</Providers>
       </body>

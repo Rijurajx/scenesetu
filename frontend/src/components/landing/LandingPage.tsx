@@ -36,6 +36,14 @@ interface LandingPageProps {
 export const LandingPage: React.FC<LandingPageProps> = ({ onOpenApp }) => {
   const [isDocsOpen, setIsDocsOpen] = useState(false);
 
+  const handleScrollToFeatures = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const el = document.getElementById("features");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   const features = [
     {
       icon: <Sparkles className="w-5 h-5 text-white" />,
@@ -141,32 +149,30 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenApp }) => {
 
             {/* Emphasized Start Now CTA */}
             <motion.button
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.96 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={onOpenApp}
-              className="px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-white text-black text-xs font-semibold hover:bg-zinc-100 transition-all shadow-[0_0_16px_rgba(255,255,255,0.25)] ring-1 ring-white/40 cursor-pointer flex items-center space-x-1 sm:space-x-1.5 shrink-0 whitespace-nowrap"
+              className="group px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-white text-black text-xs font-semibold hover:bg-zinc-100 transition-all shadow-[0_0_16px_rgba(255,255,255,0.25)] hover:shadow-[0_0_24px_rgba(255,255,255,0.55)] ring-1 ring-white/40 cursor-pointer flex items-center space-x-1 sm:space-x-1.5 shrink-0 whitespace-nowrap"
             >
               <span>Start Now</span>
-              <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-black" />
+              <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-black transform transition-transform duration-200 group-hover:translate-x-1" />
             </motion.button>
           </div>
         </div>
       </motion.nav>
 
-      {/* Hero Section with Uplifted Pixelated Bridge Cloudscape Background */}
-      <section className="relative pt-32 sm:pt-36 pb-20 sm:pb-24 px-4 sm:px-6 overflow-hidden flex flex-col items-center justify-center min-h-[90vh]">
-        {/* Uplifted Background Image: repositioned higher with crisp contrast */}
+      {/* Hero Section with Pixelated Bridge Cloudscape Background covering the full first pane */}
+      <section className="relative min-h-screen pt-28 sm:pt-36 pb-16 sm:pb-24 px-4 sm:px-6 overflow-hidden flex flex-col items-center justify-center">
+        {/* Lowered Background Image covering the entire first pane on PC and Mobile */}
         <div
-          className="absolute inset-0 bg-cover bg-[position:50%_8%] z-0 scale-105 transition-transform duration-1000"
+          className="absolute inset-0 bg-cover bg-center z-0"
           style={{
             backgroundImage: "url('/hero_bridge.jpg')",
           }}
         />
 
-        {/* Enhanced Vignette Gradients for Legibility and Seamless Dark Blend */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/30 to-[#000000] z-0" />
-        <div className="absolute inset-0 bg-radial-gradient from-transparent to-black/70 z-0" />
-        <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[#000000] via-[#000000]/85 to-transparent z-0 pointer-events-none" />
+        {/* Slight clean black overlay across the image */}
+        <div className="absolute inset-0 bg-black/45 z-0" />
 
         {/* Top Hero Text / Content */}
         <motion.div
@@ -190,29 +196,31 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenApp }) => {
           </h1>
 
           {/* Subtitle */}
-          <p className="text-xs sm:text-base text-zinc-200 max-w-2xl leading-relaxed font-normal drop-shadow-md px-1">
+          <p className="text-sm sm:text-base text-zinc-200 max-w-2xl leading-relaxed font-normal drop-shadow-md px-1">
             SceneSetu transforms a single creative brief into channel-native campaigns across Instagram, YouTube, and X, strictly enforces deterministic QC, dispatches live through your personal social adapters, and feeds verified post-ID analytics back into future briefs.
           </p>
 
-          {/* Hero CTA Buttons: Horizontally Aligned on Mobile and Desktop */}
+          {/* Hero CTA Buttons: Horizontally Aligned on Mobile and Desktop with Micro-Animations */}
           <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-3.5 pt-3 sm:pt-4 w-full">
             <motion.button
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.96 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={onOpenApp}
-              className="px-5 sm:px-8 py-2.5 sm:py-3 rounded-full bg-white text-black font-semibold text-xs sm:text-sm hover:bg-zinc-100 transition-all shadow-[0_0_24px_rgba(255,255,255,0.35)] ring-2 ring-white/40 cursor-pointer flex items-center justify-center space-x-1.5 sm:space-x-2 shrink-0 whitespace-nowrap"
+              className="group px-5 sm:px-8 py-2.5 sm:py-3 rounded-full bg-white text-black font-semibold text-xs sm:text-sm hover:bg-zinc-100 transition-all shadow-[0_0_24px_rgba(255,255,255,0.35)] hover:shadow-[0_0_32px_rgba(255,255,255,0.65)] ring-2 ring-white/40 hover:ring-white/70 cursor-pointer flex items-center justify-center space-x-1.5 sm:space-x-2 shrink-0 whitespace-nowrap"
             >
               <span>Start Now</span>
-              <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-black" />
+              <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-black transform transition-transform duration-200 group-hover:translate-x-1.5" />
             </motion.button>
 
-            <a
-              href="#features"
-              className="px-4 sm:px-7 py-2.5 sm:py-3 rounded-full bg-black/50 hover:bg-black/80 border border-white/25 hover:border-white/45 text-white font-medium text-xs sm:text-sm transition-all cursor-pointer flex items-center justify-center space-x-1 sm:space-x-2 backdrop-blur-md shrink-0 whitespace-nowrap"
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleScrollToFeatures}
+              className="group px-4 sm:px-7 py-2.5 sm:py-3 rounded-full bg-black/50 hover:bg-black/80 border border-white/25 hover:border-white/50 hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] text-white font-medium text-xs sm:text-sm transition-all cursor-pointer flex items-center justify-center space-x-1.5 sm:space-x-2 backdrop-blur-md shrink-0 whitespace-nowrap"
             >
               <span>Know More</span>
-              <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-400" />
-            </a>
+              <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-400 group-hover:text-white transform transition-transform duration-200 group-hover:translate-y-1" />
+            </motion.button>
           </div>
         </motion.div>
       </section>

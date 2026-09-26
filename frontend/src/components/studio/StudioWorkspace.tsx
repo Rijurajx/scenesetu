@@ -117,6 +117,54 @@ export const StudioWorkspace: React.FC = () => {
   const [modalImagePrompt, setModalImagePrompt] = useState<string>("");
   const [modalImageAspect, setModalImageAspect] = useState<string>("1:1");
 
+  // Creative Working Progress Bar State & Telemetry
+  const [generationPercent, setGenerationPercent] = useState<number>(10);
+  const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
+  const [activeTipIndex, setActiveTipIndex] = useState<number>(0);
+
+  const creativeTips = [
+    "SceneSetu Bengali NLP authors native Kolkata idioms and cultural phrasing without mechanical translation.",
+    "Pixazo FLUX Schnell synthesizes 12B diffusion transformer passes customized for high-contrast OTT feeds.",
+    "Framing channel-specific aspect ratios: 1:1 (Instagram), 16:9 (YouTube & X), and 4:5 (Stories & Reels).",
+    "Deterministic QC gate analyzes hard character ceilings and mandatory CTA presence before sign-off.",
+    "Compounding intelligence: prior campaign lessons are injected into Gemini to maximize audience resonance."
+  ];
+
+  useEffect(() => {
+    let progressTimer: NodeJS.Timeout;
+    let tipTimer: NodeJS.Timeout;
+
+    if (isGenerating) {
+      setGenerationPercent(12);
+      setElapsedSeconds(0);
+      setActiveTipIndex(0);
+
+      progressTimer = setInterval(() => {
+        setElapsedSeconds((prev) => prev + 1);
+        setGenerationPercent((prev) => {
+          if (prev < 30) return prev + 3;
+          if (prev < 60) return prev + 2;
+          if (prev < 85) return prev + 1.2;
+          if (prev < 95) return prev + 0.4;
+          return prev;
+        });
+      }, 1000);
+
+      tipTimer = setInterval(() => {
+        setActiveTipIndex((prev) => (prev + 1) % creativeTips.length);
+      }, 4500);
+    } else {
+      if (generationPercent > 0 && generationPercent < 100) {
+        setGenerationPercent(100);
+      }
+    }
+
+    return () => {
+      clearInterval(progressTimer);
+      clearInterval(tipTimer);
+    };
+  }, [isGenerating]);
+
   const showNotification = (msg: string) => {
     setSuccessBanner(msg);
     setTimeout(() => {
@@ -419,20 +467,134 @@ export const StudioWorkspace: React.FC = () => {
         </div>
       </div>
 
-      {/* Live Generation Progress Banner */}
-      {isGenerating && (
-        <div className="p-4 rounded-xl bg-[#121212] border border-white/20 animate-pulse">
-          <div className="flex items-center space-x-3">
-            <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
-            <div>
-              <span className="text-xs font-mono font-medium text-white uppercase tracking-wider block">
-                AI Generation Pipeline Running
-              </span>
-              <span className="text-xs text-zinc-300">{generationProgress}</span>
+      {/* Live Creative Working Progress Bar System */}
+      <AnimatePresence>
+        {isGenerating && (
+          <motion.div
+            initial={{ opacity: 0, y: -12, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.98 }}
+            transition={{ duration: 0.3 }}
+            className="p-5 sm:p-6 rounded-2xl bg-[#0D0D0D] border border-white/20 shadow-2xl shadow-black/80 space-y-4 overflow-hidden relative"
+          >
+            {/* Ambient Animated Shimmer Glow */}
+            <div className="absolute -top-24 -left-24 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none animate-pulse" />
+            <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none animate-pulse" />
+
+            {/* Header: Title, Telemetry, and Timer */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative z-10">
+              <div className="flex items-center space-x-3">
+                <div className="relative shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center border border-white/20">
+                    <Sparkles className="w-4 h-4 text-white animate-spin" />
+                  </div>
+                  <span className="absolute top-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+                </div>
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm sm:text-base font-medium text-white tracking-tight">
+                      Creative Campaign Synthesis Pipeline
+                    </span>
+                    <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-full bg-white/10 text-white border border-white/20 uppercase tracking-wide">
+                      Generating Assets
+                    </span>
+                  </div>
+                  <p className="text-xs text-zinc-300 font-mono mt-0.5">
+                    {generationProgress || "Authoring strategic brief, Bengali copy, and Pixazo FLUX imagery..."}
+                  </p>
+                </div>
+              </div>
+
+              {/* Time Elapsed & Percentage Badges */}
+              <div className="flex items-center space-x-3 self-end sm:self-auto shrink-0 font-mono text-xs">
+                <div className="flex items-center space-x-1.5 text-zinc-300 bg-[#161616] px-3 py-1.5 rounded-full border border-[#2B2B2B]">
+                  <Clock className="w-3.5 h-3.5 text-zinc-400" />
+                  <span>
+                    {String(Math.floor(elapsedSeconds / 60)).padStart(2, "0")}:
+                    {String(elapsedSeconds % 60).padStart(2, "0")}s
+                  </span>
+                </div>
+                <div className="px-3.5 py-1 rounded-full bg-white text-black font-bold font-mono text-sm shadow-sm">
+                  {Math.round(generationPercent)}%
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+
+            {/* Visual Animated Progress Bar */}
+            <div className="space-y-2.5 relative z-10">
+              <div className="h-2.5 w-full bg-[#181818] rounded-full overflow-hidden border border-[#282828] relative">
+                <motion.div
+                  className="h-full bg-gradient-to-r from-zinc-300 via-white to-zinc-200 rounded-full relative"
+                  style={{ width: `${generationPercent}%` }}
+                  transition={{ ease: "easeOut", duration: 0.4 }}
+                >
+                  <div className="absolute inset-0 bg-white/30 animate-pulse w-full" />
+                </motion.div>
+              </div>
+
+              {/* 4 Pipeline Milestones */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 font-mono text-[11px]">
+                <div
+                  className={`p-2.5 rounded-lg border transition-all flex items-center space-x-2 ${
+                    generationPercent >= 20
+                      ? "bg-white/10 border-white/30 text-white font-medium shadow-sm"
+                      : "bg-[#141414] border-[#222] text-zinc-500"
+                  }`}
+                >
+                  <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">1. Strategy & Hook</span>
+                </div>
+
+                <div
+                  className={`p-2.5 rounded-lg border transition-all flex items-center space-x-2 ${
+                    generationPercent >= 45
+                      ? "bg-white/10 border-white/30 text-white font-medium shadow-sm"
+                      : "bg-[#141414] border-[#222] text-zinc-500"
+                  }`}
+                >
+                  <FileText className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">2. Native Copywriting</span>
+                </div>
+
+                <div
+                  className={`p-2.5 rounded-lg border transition-all flex items-center space-x-2 ${
+                    generationPercent >= 75
+                      ? "bg-white/10 border-white/30 text-white font-medium shadow-sm"
+                      : "bg-[#141414] border-[#222] text-zinc-500"
+                  }`}
+                >
+                  <ImageIcon className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">3. FLUX Artwork</span>
+                </div>
+
+                <div
+                  className={`p-2.5 rounded-lg border transition-all flex items-center space-x-2 ${
+                    generationPercent >= 95
+                      ? "bg-white/10 border-white/30 text-white font-medium shadow-sm"
+                      : "bg-[#141414] border-[#222] text-zinc-500"
+                  }`}
+                >
+                  <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">4. QC & Storage</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Dynamic Rotating Creative Telemetry Tip */}
+            <div className="pt-2.5 border-t border-[#1C1C1C] flex items-center justify-between text-xs text-zinc-400 relative z-10">
+              <div className="flex items-center space-x-2 overflow-hidden">
+                <span className="text-[11px] font-mono text-zinc-500 shrink-0">CREATIVE ENGINE:</span>
+                <span className="text-[11px] text-zinc-300 italic truncate">
+                  💡 {creativeTips[activeTipIndex]}
+                </span>
+              </div>
+              <span className="text-[10px] font-mono text-zinc-500 hidden sm:inline shrink-0 ml-3">
+                Parallel DiT Synthesis
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Global Filter Slider Tabs */}
       <div className="flex items-center space-x-2.5 border-b border-[#1E1E1E] pb-3 overflow-x-auto no-scrollbar w-full">

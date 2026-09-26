@@ -9,6 +9,10 @@
   --card-border-hover: #333333;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);
