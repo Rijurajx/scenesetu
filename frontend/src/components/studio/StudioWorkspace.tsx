@@ -1007,7 +1007,7 @@ export const StudioWorkspace: React.FC = () => {
                                     {/* Secondary Copy Edit */}
                                     <div>
                                       <label className="block text-[10px] font-mono text-zinc-400 uppercase mb-1">
-                                        Secondary Context / Translation
+                                        Secondary Text
                                       </label>
                                       <input
                                         type="text"
@@ -1106,7 +1106,7 @@ export const StudioWorkspace: React.FC = () => {
                                     {post.copy_secondary && (
                                       <div>
                                         <span className="text-[10px] text-zinc-500 font-mono uppercase tracking-wider block mb-0.5">
-                                          Secondary Context / Translation
+                                          Secondary Text
                                         </span>
                                         <p className="text-[11px] text-zinc-400 italic line-clamp-2">
                                           {post.copy_secondary}
