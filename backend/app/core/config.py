@@ -31,8 +31,12 @@ class Settings(BaseSettings):
     GEMINI_MODEL: str = "gemini-3.8-flash"
 
     PIXAZO_API_KEY: str = ""
-    PIXAZO_BASE_URL: str = "https://api.pixazo.ai/v1"
-    PIXAZO_IMAGE_MODEL: str = "flux-schnell"
+    PIXAZO_BASE_URL: str = "https://gateway.pixazo.ai"
+    PIXAZO_IMAGE_MODEL: str = "flux-1-schnell"
+    PIXAZO_IMAGE_ENDPOINT: str = "https://gateway.pixazo.ai/flux-1-schnell/v1/getData"
+    PIXAZO_STATUS_ENDPOINT: str = "https://gateway.pixazo.ai/flux-1-schnell/v1/checkStatus"
+    PIXAZO_VIDEO_ENDPOINT: str = "https://gateway.pixazo.ai/ltx-2-5-lite/v1/text-to-video"
+    PIXAZO_IMAGE_TO_VIDEO_ENDPOINT: str = "https://gateway.pixazo.ai/ltx-2-5-lite/v1/image-to-video"
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
