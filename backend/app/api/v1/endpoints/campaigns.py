@@ -33,7 +33,19 @@ async def create_campaign(
     db.add(campaign)
     await db.commit()
     await db.refresh(campaign)
-    return campaign
+    return CampaignResponse(
+        id=campaign.id,
+        title=campaign.title,
+        brief=campaign.brief,
+        target_audience=campaign.target_audience,
+        key_objectives=campaign.key_objectives,
+        primary_language=campaign.primary_language,
+        prior_insight_ids=campaign.prior_insight_ids or [],
+        status=campaign.status,
+        created_at=campaign.created_at,
+        updated_at=campaign.updated_at,
+        posts=[]
+    )
 
 @router.get("", response_model=List[CampaignResponse])
 async def list_campaigns(

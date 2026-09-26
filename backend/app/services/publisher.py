@@ -104,9 +104,21 @@ class PublishingWorkflowService:
         db.add(approval)
         post.status = PostStatus.APPROVED.value
         await db.commit()
-        await db.refresh(post)
+
+        stmt_reload = (
+            select(PlatformPost)
+            .where(PlatformPost.id == post.id)
+            .options(
+                selectinload(PlatformPost.asset),
+                selectinload(PlatformPost.validation_results),
+                selectinload(PlatformPost.approvals),
+                selectinload(PlatformPost.schedule),
+                selectinload(PlatformPost.publication)
+            )
+        )
+        res_reload = await db.execute(stmt_reload)
         logger.info(f"Post {post.id} ({post.platform}) APPROVED by {reviewer_name}")
-        return post
+        return res_reload.scalar_one()
 
     @classmethod
     async def reject_post(
@@ -148,9 +160,21 @@ class PublishingWorkflowService:
         db.add(approval)
         post.status = PostStatus.REJECTED.value
         await db.commit()
-        await db.refresh(post)
+
+        stmt_reload = (
+            select(PlatformPost)
+            .where(PlatformPost.id == post.id)
+            .options(
+                selectinload(PlatformPost.asset),
+                selectinload(PlatformPost.validation_results),
+                selectinload(PlatformPost.approvals),
+                selectinload(PlatformPost.schedule),
+                selectinload(PlatformPost.publication)
+            )
+        )
+        res_reload = await db.execute(stmt_reload)
         logger.info(f"Post {post.id} ({post.platform}) REJECTED by {reviewer_name}")
-        return post
+        return res_reload.scalar_one()
 
     @classmethod
     async def schedule_post(
