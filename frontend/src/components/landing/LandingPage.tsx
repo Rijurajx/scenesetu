@@ -1,436 +1,366 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   ArrowRight,
   ShieldCheck,
   Compass,
-  Moon,
-  ChevronDown,
   Layers,
   Sparkles,
   ExternalLink,
   Check,
-  Play,
-  Pause,
-  ChevronLeft,
-  ChevronRight
+  ChevronDown,
+  BookOpen,
+  ArrowUpRight,
+  Sliders,
+  Send,
+  BarChart3,
+  Lightbulb,
+  Upload,
+  RefreshCw,
+  Cpu,
+  Globe,
+  Database,
 } from "lucide-react";
 import { PixelBridgeIcon } from "@/components/common/PixelBridgeIcon";
 import { InstagramIcon, YouTubeIcon, XTwitterIcon } from "@/components/common/PlatformIcons";
+import { DocsModal } from "@/components/docs/DocsModal";
 
 interface LandingPageProps {
   onOpenApp: () => void;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onOpenApp }) => {
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [activeSlide, setActiveSlide] = useState(0);
+  const [isDocsOpen, setIsDocsOpen] = useState(false);
 
-  const testimonials = [
+  const features = [
     {
-      quote:
-        "SceneSetu turned our content operations from fragmented manual chaos into an autonomous closed-loop studio. Having verified post-ID citations feed directly into our next briefs reduced turnaround time by 75%!",
-      author: "Abir Chatterjee",
-      role: "Creative Director",
-      company: "hoichoi",
-      logo: "hoichoi",
+      icon: <Sparkles className="w-5 h-5 text-white" />,
+      title: "AI Creative Strategy Extraction",
+      description:
+        "Gemini 2.5 Flash analyzes your raw show brief to extract the central theme, core hook, and emotional resonance before writing a single word.",
+      tag: "Gemini 2.5 Flash",
     },
     {
-      quote:
-        "The deterministic QC engine guarantees our 16:9 cinema visuals and native Bengali copy pass every strict channel constraint before human editors sign off. Flawless execution.",
-      author: "Devi Sen",
-      role: "Head of Marketing",
-      company: "SVF Media",
-      logo: "SVF",
+      icon: <Layers className="w-5 h-5 text-white" />,
+      title: "Multi-Platform Visual & Copy Studio",
+      description:
+        "Generates dedicated 1:1, 16:9, and 4:5 visual artwork with Pixazo FLUX alongside culturally authentic Bengali and English copy for YouTube, Instagram, and X.",
+      tag: "Flux Schnell 12B",
+    },
+    {
+      icon: <ShieldCheck className="w-5 h-5 text-white" />,
+      title: "Deterministic Platform QC Gate",
+      description:
+        "Evaluates hard channel rules (character limits, hashtag caps, aspect ratios, CTA presence) programmatically. LLMs never approve their own work.",
+      tag: "Hard Rule Engine",
+    },
+    {
+      icon: <Upload className="w-5 h-5 text-white" />,
+      title: "Full In-Place Editorial & Custom Uploads",
+      description:
+        "Marketing teams can edit copy in-line, upload their own photography directly to Supabase Storage, or re-render copy and imagery with customized prompts.",
+      tag: "Supabase S3 Storage",
+    },
+    {
+      icon: <Sliders className="w-5 h-5 text-white" />,
+      title: "Multi-Campaign Collapsible Batching",
+      description:
+        "Manage multiple ongoing web series or film launches simultaneously with collapsible UI panels and a single-click universal review gate dispatch.",
+      tag: "Collapsible UI",
+    },
+    {
+      icon: <Lightbulb className="w-5 h-5 text-white" />,
+      title: "Closed-Loop Evidence-Backed Insights",
+      description:
+        "Audience engagement metrics cite exact post IDs and automatically synthesize concrete recommendations that seed the next campaign brief.",
+      tag: "Closed-Loop Feedback",
     },
   ];
 
   return (
     <div className="min-h-screen bg-[#000000] text-white flex flex-col font-sans selection:bg-white/20 antialiased overflow-x-hidden">
-      {/* Top Floating Pill Navigation (Matching Wafer.ai Screenshot) */}
+      {/* Top Floating Pill Navigation */}
       <motion.nav
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="fixed top-5 inset-x-0 z-50 max-w-3xl mx-auto px-4"
+        className="fixed top-5 inset-x-0 z-50 max-w-4xl mx-auto px-4"
       >
-        <div className="bg-[#1C2220]/75 backdrop-blur-xl border border-white/20 rounded-full px-4 py-2 flex items-center justify-between shadow-2xl shadow-black/80">
-          {/* Left: Pixelated App Icon & Nav Dropdowns */}
-          <div className="flex items-center space-x-5 text-[13px] text-white/90">
-            <div
-              onClick={onOpenApp}
-              className="flex items-center justify-center cursor-pointer p-0.5 rounded-full hover:scale-105 transition-transform"
-              title="SceneSetu"
-            >
-              <PixelBridgeIcon className="w-5 h-5 rounded-full" />
-            </div>
-
-            <div className="hidden sm:flex items-center space-x-5 text-white/80 font-normal text-xs">
-              <button className="flex items-center space-x-1 hover:text-white transition-colors cursor-pointer">
-                <span>Product</span>
-                <ChevronDown className="w-3 h-3 opacity-70" />
-              </button>
-              <button className="flex items-center space-x-1 hover:text-white transition-colors cursor-pointer">
-                <span>Company</span>
-                <ChevronDown className="w-3 h-3 opacity-70" />
-              </button>
-              <a href="#features" className="hover:text-white transition-colors">
-                Blog
-              </a>
+        <div className="bg-[#121614]/80 backdrop-blur-xl border border-white/20 rounded-full px-5 py-2.5 flex items-center justify-between shadow-2xl shadow-black/80">
+          {/* Left: Pixelated App Icon & Logo */}
+          <div
+            onClick={onOpenApp}
+            className="flex items-center space-x-2.5 cursor-pointer group"
+            title="SceneSetu"
+          >
+            <PixelBridgeIcon className="w-6 h-6 rounded group-hover:scale-105 transition-transform" />
+            <div className="flex items-center space-x-1.5">
+              <span className="font-bold text-sm tracking-tight text-white font-mono lowercase">
+                scenesetu
+              </span>
+              <span className="text-[10px] text-zinc-500 font-mono hidden sm:inline">
+                hoichoi '26
+              </span>
             </div>
           </div>
 
-          {/* Center: Clean lowercase wordmark */}
-          <div className="font-bold text-xs tracking-wider text-white font-mono lowercase opacity-90 hidden md:block">
-            scenesetu
-          </div>
-
-          {/* Right: Theme Moon Toggle & Open App Pill Button */}
-          <div className="flex items-center space-x-3">
+          {/* Right: Docs, GitHub, and Emphasized Start Now Button */}
+          <div className="flex items-center space-x-3 sm:space-x-4">
+            {/* Docs Button */}
             <button
-              aria-label="Toggle theme"
-              className="w-7 h-7 rounded-full flex items-center justify-center text-white/70 hover:text-white transition-colors cursor-pointer"
+              onClick={() => setIsDocsOpen(true)}
+              className="text-xs font-medium text-zinc-300 hover:text-white transition-colors cursor-pointer flex items-center space-x-1.5 px-2 py-1 rounded-full hover:bg-white/5"
             >
-              <Moon className="w-3.5 h-3.5" />
+              <BookOpen className="w-3.5 h-3.5 text-zinc-400" />
+              <span>Docs</span>
             </button>
 
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={onOpenApp}
-              className="px-4 py-1.5 rounded-full bg-white text-black text-xs font-medium hover:bg-zinc-200 transition-all shadow-md cursor-pointer"
+            {/* GitHub Link */}
+            <a
+              href="https://github.com/Rijurajx/scenesetu"
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs font-medium text-zinc-300 hover:text-white transition-colors flex items-center space-x-1.5 px-2 py-1 rounded-full hover:bg-white/5"
             >
-              Open App
+              <ArrowUpRight className="w-3.5 h-3.5 text-zinc-400" />
+              <span>GitHub</span>
+            </a>
+
+            {/* Emphasized Start Now CTA */}
+            <motion.button
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              onClick={onOpenApp}
+              className="px-4 py-1.5 rounded-full bg-white text-black text-xs font-semibold hover:bg-zinc-100 transition-all shadow-[0_0_16px_rgba(255,255,255,0.25)] ring-1 ring-white/40 cursor-pointer flex items-center space-x-1.5 shrink-0"
+            >
+              <span>Start Now</span>
+              <ArrowRight className="w-3.5 h-3.5 text-black" />
             </motion.button>
           </div>
         </div>
       </motion.nav>
 
-      {/* Hero Section with Light-Colored Pixelated Bridge Cloudscape Background */}
-      <section className="relative pt-28 pb-20 px-6 overflow-hidden flex flex-col items-center justify-between min-h-[92vh]">
-        {/* Light Colored Pixelated Bridge Background (Crisp & Authentic to Screenshot) */}
+      {/* Hero Section with Uplifted Pixelated Bridge Cloudscape Background */}
+      <section className="relative pt-36 pb-24 px-6 overflow-hidden flex flex-col items-center justify-center min-h-[90vh]">
+        {/* Uplifted Background Image: repositioned higher with crisp contrast */}
         <div
-          className="absolute inset-0 bg-cover bg-center z-0 transition-transform duration-1000 scale-100"
+          className="absolute inset-0 bg-cover bg-[position:50%_8%] z-0 scale-105 transition-transform duration-1000"
           style={{
             backgroundImage: "url('/hero_bridge.jpg')",
           }}
         />
 
-        {/* Subtle Top & Bottom Vignette for Legibility and Seamless Dark Transition */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#182320]/45 via-transparent to-[#000000] z-0" />
-        <div className="absolute inset-0 bg-[#0E1513]/15 backdrop-blur-[0.3px] z-0" />
+        {/* Enhanced Vignette Gradients for Legibility and Seamless Dark Blend */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/30 to-[#000000] z-0" />
+        <div className="absolute inset-0 bg-radial-gradient from-transparent to-black/70 z-0" />
 
         {/* Top Hero Text / Content */}
         <motion.div
-          initial={{ opacity: 0, y: 15 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="relative z-10 max-w-3xl mx-auto flex flex-col items-center text-center space-y-4 pt-8"
+          className="relative z-10 max-w-3xl mx-auto flex flex-col items-center text-center space-y-6"
         >
           {/* Telemetry Tag */}
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-[11px] font-mono text-white/95">
+          <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-[11px] font-mono text-white">
             <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-            <span className="tracking-wide">HOICHOI HACKATHON '26 • PROBLEM 3</span>
+            <span className="tracking-wide">HOICHOI HACKATHON '26 • PROBLEM STATEMENT 3</span>
           </div>
 
-          {/* Hero Title (Exact Typography & Size from Screenshot) */}
+          {/* Hero Title */}
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-normal text-white max-w-3xl leading-[1.08] tracking-[-0.035em]">
             Content operations that{" "}
-            <span className="font-medium text-white">
+            <span className="font-semibold text-white">
               keeps getting better
             </span>
           </h1>
 
           {/* Subtitle */}
-          <p className="text-xs sm:text-sm text-white/90 max-w-[560px] leading-relaxed font-normal drop-shadow-sm">
-            SceneSetu transforms a single content brief into platform-native campaigns across Instagram, YouTube, and X, strictly enforces deterministic QC, and feeds verified post-ID performance insights into future briefs.
+          <p className="text-sm sm:text-base text-zinc-200 max-w-2xl leading-relaxed font-normal drop-shadow-md">
+            SceneSetu transforms a single creative brief into channel-native campaigns across Instagram, YouTube, and X, strictly enforces deterministic QC, and feeds verified post-ID performance insights into future briefs.
           </p>
-        </motion.div>
 
-        {/* Trajectory Wave Curve Across the Sky (Exact Style from Screenshot) */}
-        <div className="relative z-10 w-full max-w-5xl my-6">
-          <div className="relative h-28 w-full flex items-center justify-between px-6 sm:px-12">
-            {/* The Smooth White Curve */}
-            <svg
-              className="absolute inset-0 w-full h-full overflow-visible pointer-events-none"
-              viewBox="0 0 1000 120"
-              preserveAspectRatio="none"
-              fill="none"
+          {/* Hero CTA Buttons: Start Now (Emphasized) + Know More */}
+          <div className="flex flex-col sm:flex-row items-center gap-3.5 pt-4">
+            <motion.button
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              onClick={onOpenApp}
+              className="w-full sm:w-auto px-8 py-3 rounded-full bg-white text-black font-semibold text-sm hover:bg-zinc-100 transition-all shadow-[0_0_24px_rgba(255,255,255,0.35)] ring-2 ring-white/40 cursor-pointer flex items-center justify-center space-x-2"
             >
-              <path
-                d="M 20 85 C 220 95, 340 50, 520 40 C 700 30, 820 12, 980 18"
-                stroke="rgba(255, 255, 255, 0.95)"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-              />
-            </svg>
+              <span>Start Now</span>
+              <ArrowRight className="w-4 h-4 text-black" />
+            </motion.button>
 
-            {/* Waypoint 1: Ingested */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="relative z-20 flex flex-col items-center group cursor-default"
+            <a
+              href="#features"
+              className="w-full sm:w-auto px-7 py-3 rounded-full bg-black/50 hover:bg-black/80 border border-white/25 hover:border-white/45 text-white font-medium text-sm transition-all cursor-pointer flex items-center justify-center space-x-2 backdrop-blur-md"
             >
-              <span className="text-[10px] font-mono text-white/80 lowercase">brief ingested</span>
-              <span className="text-[11px] font-mono font-medium text-white mb-2">1 BRIEF</span>
-              <div className="w-3 h-3 rounded-full bg-white border-2 border-black/80 shadow-md group-hover:scale-125 transition-transform" />
-              <div className="w-0.5 h-3 bg-white/60 -mt-0.5" />
-            </motion.div>
-
-            {/* Waypoint 2: Adaptations */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.45 }}
-              className="relative z-20 flex flex-col items-center group cursor-default"
-            >
-              <span className="text-[10px] font-mono text-white/80 lowercase">platform adaptations</span>
-              <span className="text-[11px] font-mono font-medium text-white mb-2">3 CHANNELS</span>
-              <div className="w-3 h-3 rounded-full bg-white border-2 border-black/80 shadow-md group-hover:scale-125 transition-transform" />
-              <div className="w-0.5 h-3 bg-white/60 -mt-0.5" />
-            </motion.div>
-
-            {/* Waypoint 3: Deterministic QC */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="relative z-20 flex flex-col items-center group cursor-default"
-            >
-              <span className="text-[10px] font-mono text-white/80 lowercase">qc verified</span>
-              <span className="text-[11px] font-mono font-medium text-white mb-2">100% PASS</span>
-              <div className="w-3 h-3 rounded-full bg-white border-2 border-black/80 shadow-md group-hover:scale-125 transition-transform" />
-              <div className="w-0.5 h-3 bg-white/60 -mt-0.5" />
-            </motion.div>
-
-            {/* Waypoint 4: The Closed Loop */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.75 }}
-              className="relative z-20 flex flex-col items-center group cursor-default"
-            >
-              <span className="text-[10px] font-mono text-white/80 lowercase">closed-loop feedback</span>
-              <span className="text-[11px] font-mono font-medium text-white mb-2">NEXT BRIEF ↺</span>
-              <div className="w-3 h-3 rounded-full bg-white border-2 border-black/80 shadow-md group-hover:scale-125 transition-transform" />
-              <div className="w-0.5 h-3 bg-white/60 -mt-0.5" />
-            </motion.div>
-          </div>
-        </div>
-
-        {/* Frosted Testimonial Showcase Card (Exact Card from Wafer.ai Screenshot) */}
-        <motion.div
-          initial={{ opacity: 0, y: 25 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="relative z-10 w-full max-w-2xl mx-auto flex flex-col items-center space-y-4"
-        >
-          <div className="w-full p-6 sm:p-7 rounded-2xl bg-white/10 backdrop-blur-2xl border border-white/25 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-6 text-left relative overflow-hidden group">
-            {/* Subtle card grid lines */}
-            <div
-              className="absolute inset-0 opacity-10 pointer-events-none"
-              style={{
-                backgroundImage:
-                  "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
-                backgroundSize: "24px 24px",
-              }}
-            />
-
-            <div className="relative z-10 space-y-4 flex-1">
-              <p className="text-xs sm:text-sm text-white/95 font-normal leading-relaxed">
-                “ {testimonials[activeSlide].quote} ”
-              </p>
-              <div className="flex items-center space-x-3 pt-1">
-                <div className="w-8 h-8 rounded-full bg-white/20 border border-white/30 flex items-center justify-center font-bold text-xs text-white uppercase">
-                  {testimonials[activeSlide].author.charAt(0)}
-                </div>
-                <div>
-                  <span className="text-xs font-medium text-white block">
-                    {testimonials[activeSlide].author}
-                  </span>
-                  <span className="text-[11px] text-white/70 block font-normal">
-                    {testimonials[activeSlide].role} • {testimonials[activeSlide].company}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="relative z-10 shrink-0 text-right sm:border-l sm:border-white/15 sm:pl-6">
-              <span className="text-3xl font-bold tracking-tight text-white font-sans lowercase">
-                {testimonials[activeSlide].logo}
-              </span>
-            </div>
-          </div>
-
-          {/* Testimonial Controls (< || > Pill buttons) */}
-          <div className="flex items-center space-x-2 pt-1">
-            <button
-              onClick={() =>
-                setActiveSlide((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1))
-              }
-              aria-label="Previous quote"
-              className="w-7 h-7 rounded-full bg-white/15 hover:bg-white/30 border border-white/20 backdrop-blur-md flex items-center justify-center text-white text-xs transition-colors cursor-pointer"
-            >
-              <ChevronLeft className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => setIsPlaying(!isPlaying)}
-              aria-label="Pause or play carousel"
-              className="w-7 h-7 rounded-full bg-white/15 hover:bg-white/30 border border-white/20 backdrop-blur-md flex items-center justify-center text-white text-xs transition-colors cursor-pointer"
-            >
-              {isPlaying ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3 ml-0.5" />}
-            </button>
-            <button
-              onClick={() =>
-                setActiveSlide((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1))
-              }
-              aria-label="Next quote"
-              className="w-7 h-7 rounded-full bg-white/15 hover:bg-white/30 border border-white/20 backdrop-blur-md flex items-center justify-center text-white text-xs transition-colors cursor-pointer"
-            >
-              <ChevronRight className="w-3.5 h-3.5" />
-            </button>
+              <span>Know More</span>
+              <ChevronDown className="w-4 h-4 text-zinc-400" />
+            </a>
           </div>
         </motion.div>
       </section>
 
-      {/* Dark Feature Bento Grid Section (Matching Screenshot 2 - Pure Monochrome) */}
+      {/* Features & Services Section */}
       <section id="features" className="py-24 px-6 bg-[#000000] border-t border-[#1C1C1C]">
-        <div className="max-w-5xl mx-auto space-y-12">
+        <div className="max-w-6xl mx-auto space-y-12">
           {/* Section Header */}
-          <div className="max-w-xl space-y-2">
-            <span className="text-[11px] font-mono font-medium text-zinc-400 uppercase tracking-widest block">
-              DEDICATED PIPELINE
+          <div className="max-w-2xl space-y-3">
+            <span className="text-xs font-mono font-medium text-zinc-400 uppercase tracking-widest block">
+              SERVICES & CAPABILITIES
             </span>
             <h2 className="text-3xl sm:text-4xl font-normal text-white tracking-[-0.03em]">
               The content operations pipeline your studio actually needs
             </h2>
-            <p className="text-xs text-zinc-400 leading-relaxed font-normal">
-              Bring us the single brief, language, and audience context. SceneSetu builds the tailored multi-platform campaign around them—and keeps optimizing after publication.
+            <p className="text-sm text-zinc-400 leading-relaxed font-normal">
+              Bring us the single brief, language, and audience context. SceneSetu builds the tailored multi-platform campaign around them — and keeps optimizing after publication.
             </p>
           </div>
 
-          {/* 3-Column Pure Monochrome Bento Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Card 1: Channel-Tailored Content */}
-            <motion.div
-              whileHover={{ y: -4 }}
-              transition={{ duration: 0.2 }}
-              className="p-6 rounded-2xl bg-[#080808] border border-[#1A1A1A] hover:border-[#333333] transition-all flex flex-col justify-between space-y-6"
-            >
-              <div className="space-y-4">
-                {/* Visual Graphic */}
-                <div className="h-44 rounded-xl bg-black border border-white/10 p-4 flex flex-col justify-center items-center relative overflow-hidden">
-                  <div className="flex items-center space-x-4 mb-3 text-white">
-                    <div className="p-2.5 rounded-lg bg-white/5 border border-white/10">
-                      <InstagramIcon className="w-5 h-5 text-white" />
+          {/* 6-Item Modern Bento Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {features.map((feat, idx) => (
+              <motion.div
+                key={idx}
+                whileHover={{ y: -4 }}
+                transition={{ duration: 0.2 }}
+                className="p-6 rounded-2xl bg-[#090909] border border-[#1C1C1C] hover:border-[#333333] transition-all flex flex-col justify-between space-y-5"
+              >
+                <div className="space-y-3.5">
+                  <div className="flex items-center justify-between">
+                    <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                      {feat.icon}
                     </div>
-                    <div className="p-2.5 rounded-lg bg-white/5 border border-white/10">
-                      <YouTubeIcon className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="p-2.5 rounded-lg bg-white/5 border border-white/10">
-                      <XTwitterIcon className="w-5 h-5 text-white" />
-                    </div>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/5 text-zinc-400 border border-white/10">
+                      {feat.tag}
+                    </span>
                   </div>
-                  <div className="text-[10px] font-mono text-zinc-400 text-center">
-                    <span>1:1 Square</span> • <span>16:9 Cinema</span> • <span>≤280 Chars</span>
-                  </div>
+
+                  <h3 className="font-medium text-base text-white">{feat.title}</h3>
+                  <p className="text-xs text-zinc-400 leading-relaxed font-normal">
+                    {feat.description}
+                  </p>
                 </div>
 
-                <h3 className="font-medium text-base text-white">Tailored to every channel</h3>
-                <p className="text-xs text-zinc-400 leading-relaxed">
-                  Distinct visual composition and authentic native Bengali and English copy for Instagram, YouTube, and X. Zero crop, resize, or relabel shortcuts.
-                </p>
-              </div>
-
-              <div className="pt-3 border-t border-[#1C1C1C] flex items-center text-[11px] text-zinc-400 font-mono">
-                <span>Native Bengali & English</span>
-              </div>
-            </motion.div>
-
-            {/* Card 2: Deterministic QC Engine */}
-            <motion.div
-              whileHover={{ y: -4 }}
-              transition={{ duration: 0.2 }}
-              className="p-6 rounded-2xl bg-[#080808] border border-[#1A1A1A] hover:border-[#333333] transition-all flex flex-col justify-between space-y-6"
-            >
-              <div className="space-y-4">
-                {/* Visual Graphic */}
-                <div className="h-44 rounded-xl bg-black border border-white/10 p-4 flex flex-col justify-center space-y-2 relative overflow-hidden font-mono text-[10px]">
-                  <div className="p-2.5 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between">
-                    <span className="text-zinc-300">Aspect Ratio Check</span>
-                    <span className="text-white font-medium">✓ PASSED</span>
-                  </div>
-                  <div className="p-2.5 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between">
-                    <span className="text-zinc-300">Caption Length Bound</span>
-                    <span className="text-white font-medium">✓ PASSED</span>
-                  </div>
-                  <div className="p-2.5 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between">
-                    <span className="text-zinc-300">X Tweet ≤ 280 chars</span>
-                    <span className="text-white font-medium">✓ 214 CHARS</span>
-                  </div>
+                <div className="pt-3 border-t border-[#181818] flex items-center text-[11px] text-zinc-500 font-mono">
+                  <span>Verified Channel Rule</span>
                 </div>
-
-                <h3 className="font-medium text-base text-white">Deterministic QC engine</h3>
-                <p className="text-xs text-zinc-400 leading-relaxed">
-                  AI proposes, but system code strictly validates. Platform violations are rejected deterministically before any post touches the human review queue.
-                </p>
-              </div>
-
-              <div className="pt-3 border-t border-[#1C1C1C] flex items-center text-[11px] text-zinc-400 font-mono">
-                <span>Hard Rule Enforcement</span>
-              </div>
-            </motion.div>
-
-            {/* Card 3: Reliable By Design / Closed Loop */}
-            <motion.div
-              whileHover={{ y: -4 }}
-              transition={{ duration: 0.2 }}
-              className="p-6 rounded-2xl bg-[#080808] border border-[#1A1A1A] hover:border-[#333333] transition-all flex flex-col justify-between space-y-6"
-            >
-              <div className="space-y-4">
-                {/* Visual Graphic */}
-                <div className="h-44 rounded-xl bg-black border border-white/10 p-4 flex flex-col justify-center items-center relative overflow-hidden">
-                  <div className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white mb-2">
-                    <Compass className="w-5 h-5 text-white" />
-                  </div>
-                  <span className="text-xs font-medium text-white font-mono">FEED TO NEXT BRIEF</span>
-                  <span className="text-[10px] text-zinc-400 font-mono mt-1">Citing Post #id_128</span>
-                </div>
-
-                <h3 className="font-medium text-base text-white">Reliable by design</h3>
-                <p className="text-xs text-zinc-400 leading-relaxed">
-                  Human approval is mandatory before publishing. Post-performance claims cite real post IDs, feeding directly into the creation of the next brief.
-                </p>
-              </div>
-
-              <div className="pt-3 border-t border-[#1C1C1C] flex items-center text-[11px] text-zinc-400 font-mono">
-                <span>The Closed Loop</span>
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Bottom Callout CTA */}
-          <div className="pt-8 text-center">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={onOpenApp}
-              className="px-8 py-3 rounded-full bg-white text-black font-medium text-sm hover:bg-zinc-200 transition-all shadow-xl cursor-pointer inline-flex items-center space-x-2"
-            >
-              <span>Enter SceneSetu Workspace</span>
-              <ArrowRight className="w-4 h-4" />
-            </motion.button>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Bottom Footer */}
-      <footer className="py-12 px-6 border-t border-[#1C1C1C] text-center text-xs text-zinc-500 font-mono">
-        SceneSetu • hoichoi Hackathon '26 (Problem 3) • AI-Native Content Operations Platform
+      {/* Brief About Us Section */}
+      <section id="about" className="py-24 px-6 bg-[#060606] border-t border-[#1C1C1C]">
+        <div className="max-w-4xl mx-auto space-y-8">
+          <div className="space-y-3">
+            <span className="text-xs font-mono font-medium text-zinc-400 uppercase tracking-widest block">
+              ABOUT SCENESETU
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-normal text-white tracking-[-0.03em]">
+              Bridging cinematic storytelling with algorithmic distribution
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-zinc-300 leading-relaxed font-sans">
+            <div className="p-6 rounded-2xl bg-[#0A0A0A] border border-[#1E1E1E] space-y-3">
+              <h3 className="text-white font-medium text-base">The Regional OTT Challenge</h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Marketing teams at regional entertainment networks like <strong>hoichoi</strong> produce dozens of high-stakes web series and original films. Manually fragmenting a single artistic brief into native Instagram carousels, YouTube Community updates, and X commentary inevitably loses regional nuances, breaks layout rules, and produces zero feedback data.
+              </p>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-[#0A0A0A] border border-[#1E1E1E] space-y-3">
+              <h3 className="text-white font-medium text-base">The Autonomous Closed Loop</h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                SceneSetu (<strong>"সেতু"</strong> or <strong>Bridge</strong>) was engineered to solve this end-to-end. By pairing Gemini 2.5 Flash for culturally fluent Bengali copywriting with Pixazo FLUX for dedicated cinematic framing, we ensure every post is deterministic, verified, and traced back to actual audience resonance.
+              </p>
+            </div>
+          </div>
+
+          {/* Interactive Tech Specs Banner */}
+          <div className="p-6 rounded-2xl bg-[#0A0A0A] border border-[#1E1E1E] flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-1">
+              <span className="text-xs font-mono uppercase text-zinc-400">Ready to explore?</span>
+              <p className="text-white font-medium text-sm">
+                Explore our full technical documentation, deterministic QC rules, and API specifications.
+              </p>
+            </div>
+
+            <div className="flex items-center space-x-3 shrink-0">
+              <button
+                onClick={() => setIsDocsOpen(true)}
+                className="px-5 py-2.5 rounded-full bg-[#181818] hover:bg-[#252525] border border-[#333] text-white text-xs font-mono transition-colors cursor-pointer flex items-center space-x-1.5"
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                <span>Read Full Docs</span>
+              </button>
+
+              <button
+                onClick={onOpenApp}
+                className="px-6 py-2.5 rounded-full bg-white text-black font-semibold text-xs hover:bg-zinc-200 transition-all shadow cursor-pointer flex items-center space-x-1.5"
+              >
+                <span>Launch App</span>
+                <ArrowRight className="w-3.5 h-3.5 text-black" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Modern Minimalistic Footer */}
+      <footer className="py-14 px-6 border-t border-[#1C1C1C] bg-black">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-zinc-500 font-mono">
+          <div className="flex items-center space-x-3">
+            <PixelBridgeIcon className="w-6 h-6 rounded" />
+            <div className="flex flex-col text-left">
+              <span className="text-white font-bold tracking-tight lowercase">scenesetu</span>
+              <span className="text-[10px] text-zinc-600">hoichoi Hackathon 2026 • Problem 3</span>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-6 text-zinc-400">
+            <button
+              onClick={() => setIsDocsOpen(true)}
+              className="hover:text-white transition-colors cursor-pointer"
+            >
+              Docs
+            </button>
+            <a href="#features" className="hover:text-white transition-colors">
+              Features
+            </a>
+            <a href="#about" className="hover:text-white transition-colors">
+              About
+            </a>
+            <a
+              href="https://github.com/Rijurajx/scenesetu"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-white transition-colors"
+            >
+              GitHub
+            </a>
+            <button
+              onClick={onOpenApp}
+              className="text-white hover:underline transition-colors cursor-pointer"
+            >
+              Start Now →
+            </button>
+          </div>
+
+          <div className="text-zinc-600 text-center sm:text-right text-[11px]">
+            MIT License • Designed for hoichoi Studios
+          </div>
+        </div>
       </footer>
+
+      {/* Official Documentation Modal */}
+      <DocsModal isOpen={isDocsOpen} onClose={() => setIsDocsOpen(false)} />
     </div>
   );
 };
