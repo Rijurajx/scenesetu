@@ -40,6 +40,7 @@ type DocSectionId =
   | "overview"
   | "tech-stack"
   | "operating-guide"
+  | "adapters"
   | "features"
   | "qc-rules"
   | "closed-loop"
@@ -52,12 +53,13 @@ export const DocsModal: React.FC<DocsModalProps> = ({ isOpen, onClose }) => {
 
   const navPoints: { id: DocSectionId; label: string; icon: React.ReactNode }[] = [
     { id: "overview", label: "1. Mission & Overview", icon: <PixelBridgeIcon className="w-4 h-4 rounded" /> },
-    { id: "tech-stack", label: "2. Tech Stack", icon: <Cpu className="w-4 h-4 text-white" /> },
-    { id: "operating-guide", label: "3. Operating Guide (6 Steps)", icon: <Terminal className="w-4 h-4 text-white" /> },
-    { id: "features", label: "4. Deep-Dive Features", icon: <Sliders className="w-4 h-4 text-white" /> },
-    { id: "qc-rules", label: "5. Deterministic QC Rules", icon: <ShieldCheck className="w-4 h-4 text-white" /> },
-    { id: "closed-loop", label: "6. Closed-Loop Feedback", icon: <Lightbulb className="w-4 h-4 text-white" /> },
-    { id: "faq", label: "7. FAQ & Troubleshooting", icon: <HelpCircle className="w-4 h-4 text-white" /> },
+    { id: "tech-stack", label: "2. Tech Stack & Resilient AI", icon: <Cpu className="w-4 h-4 text-white" /> },
+    { id: "operating-guide", label: "3. Operating Guide (Full Lifecycle)", icon: <Terminal className="w-4 h-4 text-white" /> },
+    { id: "adapters", label: "4. Personal Social Adapters", icon: <Layers className="w-4 h-4 text-white" /> },
+    { id: "features", label: "5. Deep-Dive Features", icon: <Sliders className="w-4 h-4 text-white" /> },
+    { id: "qc-rules", label: "6. Deterministic QC Rules", icon: <ShieldCheck className="w-4 h-4 text-white" /> },
+    { id: "closed-loop", label: "7. Closed-Loop Feedback", icon: <Lightbulb className="w-4 h-4 text-white" /> },
+    { id: "faq", label: "8. FAQ & Troubleshooting", icon: <HelpCircle className="w-4 h-4 text-white" /> },
   ];
 
   const scrollToSection = (id: DocSectionId) => {
@@ -204,8 +206,9 @@ export const DocsModal: React.FC<DocsModalProps> = ({ isOpen, onClose }) => {
                 <ul className="text-xs text-zinc-400 space-y-1 list-disc pl-4 font-mono">
                   <li>Framework: FastAPI (Python 3.11 asynchronous)</li>
                   <li>Validation: Pydantic v2 schemas</li>
-                  <li>ORM: SQLAlchemy 2.0 with asyncpg</li>
+                  <li>ORM: SQLAlchemy 2.0 with asyncpg & eager selectinload</li>
                   <li>Server: Uvicorn ASGI with auto-reload</li>
+                  <li>Live Social Connector: httpx Async HTTP Engine</li>
                   <li>Hosting: Render Cloud Web Service</li>
                 </ul>
               </div>
@@ -213,26 +216,29 @@ export const DocsModal: React.FC<DocsModalProps> = ({ isOpen, onClose }) => {
               <div className="p-4 rounded-xl bg-[#121212] border border-[#222] space-y-2">
                 <div className="flex items-center space-x-2 text-white font-medium text-xs">
                   <Sparkles className="w-4 h-4 text-white" />
-                  <span>Dual AI Engine</span>
+                  <span>Dual AI Engine & Fallback Cascade</span>
                 </div>
                 <ul className="text-xs text-zinc-400 space-y-1 list-disc pl-4 font-mono">
-                  <li>Language: Gemini 2.5 Flash (Google GenAI SDK)</li>
-                  <li>Bengali Translation & Cultural Adaptation</li>
-                  <li>Image Model: Pixazo FLUX Schnell (SOTA 12B DiT)</li>
-                  <li>Multi-Aspect Framing: 16:9, 1:1, 4:5, 9:16</li>
+                  <li>Primary Model: Gemini 3.5 Flash Lite (500 RPD)</li>
+                  <li>Multi-Tier Cascade: 3.5 Flash Lite → 3.1 Flash Lite → 2.5 Flash Lite → 3.5 Flash</li>
+                  <li>Zero-Downtime: Instant failover on HTTP 429 quota limits</li>
+                  <li>Bengali Translation: Native script & cultural idiomatic phrasing</li>
+                  <li>Image Synthesis: Pixazo FLUX Schnell (SOTA 12B DiT)</li>
+                  <li>Framing: Channel-native 16:9, 1:1, and 4:5 ratios</li>
                 </ul>
               </div>
 
               <div className="p-4 rounded-xl bg-[#121212] border border-[#222] space-y-2">
                 <div className="flex items-center space-x-2 text-white font-medium text-xs">
                   <Database className="w-4 h-4 text-white" />
-                  <span>Database & Asset Storage</span>
+                  <span>Database, Storage & Adapters</span>
                 </div>
                 <ul className="text-xs text-zinc-400 space-y-1 list-disc pl-4 font-mono">
-                  <li>Relational DB: Supabase PostgreSQL</li>
-                  <li>Cloud Storage: Supabase S3 Storage Bucket</li>
-                  <li>Bucket: scenesetu-assets (Public CDN)</li>
-                  <li>Cascading Deletion: Full referential integrity</li>
+                  <li>Relational DB: Supabase PostgreSQL (AWS ap-southeast-1)</li>
+                  <li>Cloud Storage: Supabase S3 Storage Bucket (scenesetu-assets)</li>
+                  <li>Adapter Vault: Encrypted credentials, webhooks, and tokens</li>
+                  <li>Cascading Deletion: Full referential integrity on posts</li>
+                  <li>Public CDN: Direct high-speed asset delivery</li>
                 </ul>
               </div>
             </div>
@@ -309,28 +315,143 @@ export const DocsModal: React.FC<DocsModalProps> = ({ isOpen, onClose }) => {
                 </div>
               </div>
 
-              {/* Steps 4, 5, 6 */}
+              {/* Step 4 */}
+              <div className="p-4 rounded-xl bg-[#121212] border border-[#222] space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2 text-white font-medium text-xs font-mono">
+                    <Layers className="w-4 h-4 text-white" />
+                    <span>STEP 4: CONFIGURE PERSONAL SOCIAL ADAPTERS</span>
+                  </div>
+                  <span className="text-[10px] font-mono text-zinc-500">Connectivity</span>
+                </div>
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  Navigate to the <strong>Adapters</strong> section in the sidebar to link your real-life social publishing pipelines.
+                </p>
+                <div className="bg-[#181818] p-3 rounded-lg text-xs font-mono text-zinc-300 space-y-1">
+                  <div>• <strong>Webhooks:</strong> Plug in Zapier, Make, n8n, Buffer, Discord, or custom microservice endpoints.</div>
+                  <div>• <strong>API Keys / OAuth:</strong> Connect Twitter/X API v2 or Meta Instagram Graph API v19.0.</div>
+                  <div>• <strong>Ping Test:</strong> Verify live connection health and latency with one-click test requests.</div>
+                  <div>• <strong>Zero Mock Lock:</strong> When configured, SceneSetu dispatches directly to real endpoints. If no adapter is configured, it safely defaults to the built-in simulator.</div>
+                </div>
+              </div>
+
+              {/* Step 5 */}
               <div className="p-4 rounded-xl bg-[#121212] border border-[#222] space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2 text-white font-medium text-xs font-mono">
                     <Send className="w-4 h-4 text-white" />
-                    <span>STEPS 4 - 6: PUBLISHER, ANALYTICS & CLOSED-LOOP INSIGHTS</span>
+                    <span>STEP 5: PUBLISHER CONTROL CENTER</span>
                   </div>
-                  <span className="text-[10px] font-mono text-zinc-500">Execution & Loop</span>
+                  <span className="text-[10px] font-mono text-zinc-500">Live Dispatch</span>
                 </div>
                 <p className="text-xs text-zinc-400 leading-relaxed">
-                  Approved content is dispatched through the Multi-Channel Publisher. As simulated audience impressions, views, and clicks are recorded, the <strong>Like-for-Like Cross-Platform Analytics</strong> engine determines the winning platform. Finally, the <strong>Closed Loop Engine</strong> extracts concrete strategic recommendations tied to exact post IDs and injects them into future briefs.
+                  The Publisher displays your approved campaigns in collapsible accordions. Each approved post card reflects which adapter is active.
+                </p>
+                <div className="bg-[#181818] p-3 rounded-lg text-xs font-mono text-zinc-300 space-y-1">
+                  <div>• <strong>Publish via Adapter:</strong> Dispatches real payloads to your configured adapter and records external receipt IDs.</div>
+                  <div>• <strong>Unpublish Button:</strong> Once published, the button turns into an <em>Unpublish</em> button. Clicking it reverts post status back to approved and unlinks it from live analytics.</div>
+                  <div>• <strong>Scheduling:</strong> Schedule future releases with local timestamp pickers.</div>
+                </div>
+              </div>
+
+              {/* Step 6 */}
+              <div className="p-4 rounded-xl bg-[#121212] border border-[#222] space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2 text-white font-medium text-xs font-mono">
+                    <BarChart3 className="w-4 h-4 text-white" />
+                    <span>STEP 6: LIKE-FOR-LIKE CROSS-PLATFORM ANALYTICS</span>
+                  </div>
+                  <span className="text-[10px] font-mono text-zinc-500">Performance</span>
+                </div>
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  Only published posts stream into Analytics. View campaigns in collapsible accordions, compare reach and engagement side-by-side, and celebrate the algorithmically determined trophy winner.
+                </p>
+              </div>
+
+              {/* Step 7 */}
+              <div className="p-4 rounded-xl bg-[#121212] border border-[#222] space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2 text-white font-medium text-xs font-mono">
+                    <Lightbulb className="w-4 h-4 text-white" />
+                    <span>STEP 7: EVIDENCE-BACKED CLOSED-LOOP INSIGHTS</span>
+                  </div>
+                  <span className="text-[10px] font-mono text-zinc-500">Optimization</span>
+                </div>
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  Synthesize verifiable insights citing real post IDs and engagement metrics, which are then passed into the brief prompt context in Step 1 to close the intelligence loop.
                 </p>
               </div>
             </div>
           </section>
 
-          {/* 4. Deep-Dive Features */}
+          {/* 4. Personal Social Adapters */}
+          <section id="doc-section-adapters" className="space-y-4 scroll-mt-6">
+            <div className="flex items-center space-x-2 text-white border-b border-[#222] pb-2">
+              <Layers className="w-5 h-5 text-white" />
+              <h3 className="text-lg font-semibold text-white tracking-tight">
+                4. Personal Social Adapters (Real-Life Dispatch Engine)
+              </h3>
+            </div>
+
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              SceneSetu eliminates mock-data dependency. Marketing leads and engineers can connect live external channels directly from the <strong>Adapters</strong> workspace.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono">
+              <div className="p-4 rounded-xl bg-[#121212] border border-[#222] space-y-2">
+                <div className="flex items-center space-x-2 text-white font-medium">
+                  <Send className="w-4 h-4 text-white" />
+                  <span>Universal Webhooks</span>
+                </div>
+                <p className="text-[11px] text-zinc-400 font-sans leading-relaxed">
+                  Deliver formatted JSON payloads over HTTP POST to Zapier, Make, n8n, Buffer, or your internal content microservice.
+                </p>
+                <div className="bg-[#181818] p-2.5 rounded text-[10px] text-zinc-300">
+                  Payload includes: title, copy, image URL, platform target, tags, and timestamp.
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl bg-[#121212] border border-[#222] space-y-2">
+                <div className="flex items-center space-x-2 text-white font-medium">
+                  <XTwitterIcon className="w-4 h-4 text-white" />
+                  <span>X (Twitter) API v2</span>
+                </div>
+                <p className="text-[11px] text-zinc-400 font-sans leading-relaxed">
+                  Connect Bearer / OAuth credentials to post natively to <code>https://api.twitter.com/2/tweets</code> with full character cap verification.
+                </p>
+                <div className="bg-[#181818] p-2.5 rounded text-[10px] text-zinc-300">
+                  Direct live tweets published under your official handle.
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl bg-[#121212] border border-[#222] space-y-2">
+                <div className="flex items-center space-x-2 text-white font-medium">
+                  <InstagramIcon className="w-4 h-4 text-white" />
+                  <span>Instagram Graph API</span>
+                </div>
+                <p className="text-[11px] text-zinc-400 font-sans leading-relaxed">
+                  Post photo carousels and reels via Meta Graph API v19.0 container and publish pipeline with CDN image verification.
+                </p>
+                <div className="bg-[#181818] p-2.5 rounded text-[10px] text-zinc-300">
+                  Direct live Instagram posts with verified hashtags & CTAs.
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-xl bg-[#141414] border border-[#242424] text-xs space-y-2 font-mono">
+              <span className="text-white font-semibold font-sans">Live Connectivity Diagnostic</span>
+              <p className="text-zinc-400 font-sans">
+                Each adapter card features a <em>"Ping / Test Connection"</em> button that triggers an instantaneous handshake against the destination endpoint, rendering round-trip latency in milliseconds (e.g. <code>✓ Connected in 142ms</code>) or specific troubleshooting advice if authentication fails.
+              </p>
+            </div>
+          </section>
+
+          {/* 5. Deep-Dive Features */}
           <section id="doc-section-features" className="space-y-4 scroll-mt-6">
             <div className="flex items-center space-x-2 text-white border-b border-[#222] pb-2">
               <Sliders className="w-5 h-5 text-white" />
               <h3 className="text-lg font-semibold text-white tracking-tight">
-                4. Deep-Dive Feature Breakdown
+                5. Deep-Dive Feature Breakdown
               </h3>
             </div>
 
@@ -364,6 +485,34 @@ export const DocsModal: React.FC<DocsModalProps> = ({ isOpen, onClose }) => {
               </div>
 
               <div className="p-3.5 rounded-lg bg-[#141414] border border-[#242424] space-y-1">
+                <span className="font-semibold text-white text-sm">Personal Social Adapters & Webhooks Engine</span>
+                <p className="text-zinc-400">
+                  Allows teams to plug in live publishing destinations (Universal Webhooks, X API v2, Instagram Graph API) with instant ping latency diagnostics. The platform dispatches real payloads to user channels and only uses a simulated fallback when no adapter is configured.
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-lg bg-[#141414] border border-[#242424] space-y-1">
+                <span className="font-semibold text-white text-sm">Live Channel Dispatch & Instant Unpublish Reversal</span>
+                <p className="text-zinc-400">
+                  Clicking <em>Publish via Channel Adapter</em> transmits real creative payloads and records external dispatch receipts. Once published, the action converts into an <em>Unpublish</em> button, allowing marketing editors to pull back live releases and unlink them from active analytics at any time.
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-lg bg-[#141414] border border-[#242424] space-y-1">
+                <span className="font-semibold text-white text-sm">Accordion-Native Analytics (Strict Published-Only Streaming)</span>
+                <p className="text-zinc-400">
+                  Like-for-like performance metrics strictly isolate published assets. Unapproved drafts and rejected variants never pollute performance numbers. Campaigns render in collapsible accordions with automated winner badge identification.
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-lg bg-[#141414] border border-[#242424] space-y-1">
+                <span className="font-semibold text-white text-sm">Zero-Downtime Multi-Tier Model Resilience</span>
+                <p className="text-zinc-400">
+                  Protects studio operations against API rate limits. If Google Gemini hits HTTP 429 quota exhaustion on one tier, the engine immediately shifts down the fallback cascade (Gemini 3.5 Flash Lite → 3.1 Flash Lite → 2.5 Flash Lite → 3.5 Flash) without stalling or failing requests.
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-lg bg-[#141414] border border-[#242424] space-y-1">
                 <span className="font-semibold text-white text-sm">Cascading Deletion Engine</span>
                 <p className="text-zinc-400">
                   Deleting a post cleans up all foreign key child records (validation results, approvals, schedules, metrics) before safely removing the post from the database.
@@ -372,12 +521,12 @@ export const DocsModal: React.FC<DocsModalProps> = ({ isOpen, onClose }) => {
             </div>
           </section>
 
-          {/* 5. Deterministic QC Rules */}
+          {/* 6. Deterministic QC Rules */}
           <section id="doc-section-qc-rules" className="space-y-4 scroll-mt-6">
             <div className="flex items-center space-x-2 text-white border-b border-[#222] pb-2">
               <ShieldCheck className="w-5 h-5 text-white" />
               <h3 className="text-lg font-semibold text-white tracking-tight">
-                5. Deterministic Platform QC Rules Reference
+                6. Deterministic Platform QC Rules Reference
               </h3>
             </div>
 
@@ -432,12 +581,12 @@ export const DocsModal: React.FC<DocsModalProps> = ({ isOpen, onClose }) => {
             </div>
           </section>
 
-          {/* 6. Closed-Loop Feedback */}
+          {/* 7. Closed-Loop Feedback */}
           <section id="doc-section-closed-loop" className="space-y-4 scroll-mt-6">
             <div className="flex items-center space-x-2 text-white border-b border-[#222] pb-2">
               <Lightbulb className="w-5 h-5 text-white" />
               <h3 className="text-lg font-semibold text-white tracking-tight">
-                6. Evidence-Backed Closed-Loop Feedback
+                7. Evidence-Backed Closed-Loop Feedback
               </h3>
             </div>
 
@@ -464,16 +613,43 @@ export const DocsModal: React.FC<DocsModalProps> = ({ isOpen, onClose }) => {
             </div>
           </section>
 
-          {/* 7. FAQ & Troubleshooting */}
+          {/* 8. FAQ & Troubleshooting */}
           <section id="doc-section-faq" className="space-y-4 scroll-mt-6 pb-6">
             <div className="flex items-center space-x-2 text-white border-b border-[#222] pb-2">
               <HelpCircle className="w-5 h-5 text-white" />
               <h3 className="text-lg font-semibold text-white tracking-tight">
-                7. Frequently Asked Questions & Troubleshooting
+                8. Frequently Asked Questions & Troubleshooting
               </h3>
             </div>
 
             <div className="space-y-3 text-xs">
+              <div className="p-3.5 rounded-lg bg-[#141414] border border-[#222]">
+                <h5 className="font-medium text-white mb-1">
+                  Q: How do I publish to real life platforms instead of mock data?
+                </h5>
+                <p className="text-zinc-400">
+                  Go to the <strong>Adapters</strong> section in the sidebar and add your personal adapter. Choose <em>Universal Webhook</em> for instant connection to Zapier, Make, Buffer, or your internal API, or add your Twitter/X or Meta Instagram API credentials. Once configured and enabled, the Publisher sends live production payloads directly through your personal adapter.
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-lg bg-[#141414] border border-[#222]">
+                <h5 className="font-medium text-white mb-1">
+                  Q: What happens when I click the "Unpublish" button in the Publisher?
+                </h5>
+                <p className="text-zinc-400">
+                  Clicking <em>Unpublish</em> immediately removes the publication record, returns the post back to <code>approved</code> status, and excludes it from the live Analytics dashboard. You can modify it or re-publish it at any time.
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-lg bg-[#141414] border border-[#222]">
+                <h5 className="font-medium text-white mb-1">
+                  Q: What happens if Gemini reaches a daily rate limit?
+                </h5>
+                <p className="text-zinc-400">
+                  SceneSetu has an automated multi-tier model fallback cascade. If a model tier returns an HTTP 429 quota exhaustion error, the backend instantly transitions to high-capacity Flash Lite models (500 RPD) without failing or stalling your generation run.
+                </p>
+              </div>
+
               <div className="p-3.5 rounded-lg bg-[#141414] border border-[#222]">
                 <h5 className="font-medium text-white mb-1">
                   Q: Why is the "Sign Off / Approve" button disabled in the Review Gate?

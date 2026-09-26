@@ -22,6 +22,8 @@ import {
   Cpu,
   Globe,
   Database,
+  Plug,
+  RotateCcw,
 } from "lucide-react";
 import { PixelBridgeIcon } from "@/components/common/PixelBridgeIcon";
 import { InstagramIcon, YouTubeIcon, XTwitterIcon } from "@/components/common/PlatformIcons";
@@ -37,14 +39,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenApp }) => {
   const features = [
     {
       icon: <Sparkles className="w-5 h-5 text-white" />,
-      title: "AI Creative Strategy Extraction",
+      title: "AI Strategy & Zero-Downtime Cascade",
       description:
-        "Gemini 2.5 Flash analyzes your raw show brief to extract the central theme, core hook, and emotional resonance before writing a single word.",
-      tag: "Gemini 2.5 Flash",
+        "Extracts core hooks, themes, and emotional resonance using Gemini with an automated multi-tier fallback cascade (3.5 Flash Lite → 3.1 Flash Lite → 2.5 Flash Lite).",
+      tag: "Gemini Flash Lite",
     },
     {
       icon: <Layers className="w-5 h-5 text-white" />,
-      title: "Multi-Platform Campaign Creation & Adaptation",
+      title: "Multi-Platform Campaign Adaptation",
       description:
         "Generates dedicated 1:1, 16:9, and 4:5 visual artwork with Pixazo FLUX alongside culturally authentic Bengali and English copy for YouTube, Instagram, and X.",
       tag: "Flux Schnell 12B",
@@ -57,18 +59,32 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenApp }) => {
       tag: "Hard Rule Engine",
     },
     {
+      icon: <Plug className="w-5 h-5 text-white" />,
+      title: "Personal Social Adapters & Webhooks",
+      description:
+        "Connect live production channels via Universal Webhooks (Zapier, Make, n8n, Buffer), Twitter/X API v2, or Meta Instagram Graph API with real latency ping tests.",
+      tag: "Live Connectors",
+    },
+    {
+      icon: <Send className="w-5 h-5 text-white" />,
+      title: "Publisher Control & Instant Unpublish",
+      description:
+        "Dispatches real payloads directly to your active adapter. Revert releases at any time with an instant Unpublish toggle that removes them from active analytics.",
+      tag: "Live Dispatch",
+    },
+    {
+      icon: <BarChart3 className="w-5 h-5 text-white" />,
+      title: "Cross-Platform Published Analytics",
+      description:
+        "Like-for-like analytics strictly isolate published assets in collapsible campaign accordions, identifying the algorithmic trophy winner across channels.",
+      tag: "Published Streaming",
+    },
+    {
       icon: <Upload className="w-5 h-5 text-white" />,
-      title: "Full In-Place Editorial & Custom Uploads",
+      title: "In-Place Editorial & Custom S3 Uploads",
       description:
         "Marketing teams can edit copy in-line, upload their own photography directly to Supabase Storage, or re-render copy and imagery with customized prompts.",
       tag: "Supabase S3 Storage",
-    },
-    {
-      icon: <Sliders className="w-5 h-5 text-white" />,
-      title: "Multi-Campaign Collapsible Batching",
-      description:
-        "Manage multiple ongoing web series or film launches simultaneously with collapsible UI panels and a single-click universal review gate dispatch.",
-      tag: "Collapsible UI",
     },
     {
       icon: <Lightbulb className="w-5 h-5 text-white" />,
@@ -179,7 +195,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenApp }) => {
 
           {/* Subtitle */}
           <p className="text-sm sm:text-base text-zinc-200 max-w-2xl leading-relaxed font-normal drop-shadow-md">
-            SceneSetu transforms a single creative brief into channel-native campaigns across Instagram, YouTube, and X, strictly enforces deterministic QC, and feeds verified post-ID performance insights into future briefs.
+            SceneSetu transforms a single creative brief into channel-native campaigns across Instagram, YouTube, and X, strictly enforces deterministic QC, dispatches live through your personal social adapters, and feeds verified post-ID analytics back into future briefs.
           </p>
 
           {/* Hero CTA Buttons: Start Now (Emphasized) + Know More */}
@@ -221,18 +237,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenApp }) => {
             </p>
           </div>
 
-          {/* 6-Item Modern Bento Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* 8-Item Modern Bento Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
             {features.map((feat, idx) => (
               <motion.div
                 key={idx}
                 whileHover={{ y: -4 }}
                 transition={{ duration: 0.2 }}
-                className="p-6 rounded-2xl bg-[#090909] border border-[#1C1C1C] hover:border-[#333333] transition-all flex flex-col justify-between space-y-5"
+                className="p-5 rounded-2xl bg-[#090909] border border-[#1C1C1C] hover:border-[#333333] transition-all flex flex-col justify-between space-y-4"
               >
-                <div className="space-y-3.5">
+                <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                    <div className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
                       {feat.icon}
                     </div>
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/5 text-zinc-400 border border-white/10">
@@ -240,13 +256,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenApp }) => {
                     </span>
                   </div>
 
-                  <h3 className="font-medium text-base text-white">{feat.title}</h3>
+                  <h3 className="font-medium text-sm text-white">{feat.title}</h3>
                   <p className="text-xs text-zinc-400 leading-relaxed font-normal">
                     {feat.description}
                   </p>
                 </div>
 
-                <div className="pt-3 border-t border-[#181818] flex items-center text-[11px] text-zinc-500 font-mono">
+                <div className="pt-2.5 border-t border-[#181818] flex items-center text-[10px] text-zinc-500 font-mono">
                   <span>Verified Channel Rule</span>
                 </div>
               </motion.div>
@@ -276,9 +292,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenApp }) => {
             </div>
 
             <div className="p-6 rounded-2xl bg-[#0A0A0A] border border-[#1E1E1E] space-y-3">
-              <h3 className="text-white font-medium text-base">The Autonomous Closed Loop</h3>
+              <h3 className="text-white font-medium text-base">The Autonomous Closed Loop & Real Adapters</h3>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                SceneSetu (<strong>"সেতু"</strong> or <strong>Bridge</strong>) was engineered to solve this end-to-end. By pairing Gemini 2.5 Flash for culturally fluent Bengali copywriting with Pixazo FLUX for dedicated cinematic framing, we ensure every post is deterministic, verified, and traced back to actual audience resonance.
+                SceneSetu (<strong>"সেতু"</strong> or <strong>Bridge</strong>) was engineered to solve this end-to-end. By pairing resilient Gemini Flash Lite models with Pixazo FLUX for dedicated cinematic framing, we ensure every post is deterministic, verified, and dispatched via real personal social adapters (Webhooks, X API, Meta Graph API) into live audience analytics.
               </p>
             </div>
           </div>
