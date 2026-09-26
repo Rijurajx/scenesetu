@@ -102,34 +102,29 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenApp }) => {
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="fixed top-5 inset-x-0 z-50 w-fit max-w-[92vw] mx-auto px-2"
+        className="fixed top-4 sm:top-5 inset-x-0 z-50 w-fit max-w-[96vw] sm:max-w-[92vw] mx-auto px-1 sm:px-2"
       >
-        <div className="bg-[#121614]/80 backdrop-blur-xl border border-white/20 rounded-full px-4 sm:px-5 py-2 flex items-center space-x-3.5 sm:space-x-5 shadow-2xl shadow-black/80">
+        <div className="bg-[#121614]/85 backdrop-blur-xl border border-white/20 rounded-full px-2.5 sm:px-5 py-1.5 sm:py-2 flex items-center space-x-2 sm:space-x-4 shadow-2xl shadow-black/80">
           {/* Left: Pixelated App Icon & Logo */}
           <div
             onClick={onOpenApp}
-            className="flex items-center space-x-2.5 cursor-pointer group"
+            className="flex items-center space-x-1.5 sm:space-x-2.5 cursor-pointer group shrink-0"
             title="SceneSetu"
           >
-            <PixelBridgeIcon className="w-6 h-6 rounded group-hover:scale-105 transition-transform" />
-            <div className="flex items-center space-x-1.5">
-              <span className="font-bold text-sm tracking-tight text-white font-mono lowercase">
-                scenesetu
-              </span>
-              <span className="text-[10px] text-zinc-500 font-mono hidden sm:inline">
-                hoichoi '26
-              </span>
-            </div>
+            <PixelBridgeIcon className="w-5 h-5 sm:w-6 sm:h-6 rounded group-hover:scale-105 transition-transform" />
+            <span className="font-bold text-xs sm:text-sm tracking-tight text-white font-mono lowercase">
+              scenesetu
+            </span>
           </div>
 
           {/* Right: Docs, GitHub, and Emphasized Start Now Button */}
-          <div className="flex items-center space-x-3 sm:space-x-4">
+          <div className="flex items-center space-x-1 sm:space-x-3">
             {/* Docs Button */}
             <button
               onClick={() => setIsDocsOpen(true)}
-              className="text-xs font-medium text-zinc-300 hover:text-white transition-colors cursor-pointer flex items-center space-x-1.5 px-2 py-1 rounded-full hover:bg-white/5"
+              className="text-xs font-medium text-zinc-300 hover:text-white transition-colors cursor-pointer flex items-center space-x-1 px-1.5 sm:px-2 py-1 rounded-full hover:bg-white/5 whitespace-nowrap"
             >
-              <BookOpen className="w-3.5 h-3.5 text-zinc-400" />
+              <BookOpen className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-400" />
               <span>Docs</span>
             </button>
 
@@ -138,9 +133,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenApp }) => {
               href="https://github.com/Rijurajx/scenesetu"
               target="_blank"
               rel="noreferrer"
-              className="text-xs font-medium text-zinc-300 hover:text-white transition-colors flex items-center space-x-1.5 px-2 py-1 rounded-full hover:bg-white/5"
+              className="text-xs font-medium text-zinc-300 hover:text-white transition-colors flex items-center space-x-1 px-1.5 sm:px-2 py-1 rounded-full hover:bg-white/5 whitespace-nowrap"
             >
-              <ArrowUpRight className="w-3.5 h-3.5 text-zinc-400" />
+              <ArrowUpRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-400" />
               <span>GitHub</span>
             </a>
 
@@ -149,17 +144,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenApp }) => {
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
               onClick={onOpenApp}
-              className="px-4 py-1.5 rounded-full bg-white text-black text-xs font-semibold hover:bg-zinc-100 transition-all shadow-[0_0_16px_rgba(255,255,255,0.25)] ring-1 ring-white/40 cursor-pointer flex items-center space-x-1.5 shrink-0"
+              className="px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-white text-black text-xs font-semibold hover:bg-zinc-100 transition-all shadow-[0_0_16px_rgba(255,255,255,0.25)] ring-1 ring-white/40 cursor-pointer flex items-center space-x-1 sm:space-x-1.5 shrink-0 whitespace-nowrap"
             >
               <span>Start Now</span>
-              <ArrowRight className="w-3.5 h-3.5 text-black" />
+              <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-black" />
             </motion.button>
           </div>
         </div>
       </motion.nav>
 
       {/* Hero Section with Uplifted Pixelated Bridge Cloudscape Background */}
-      <section className="relative pt-36 pb-24 px-6 overflow-hidden flex flex-col items-center justify-center min-h-[90vh]">
+      <section className="relative pt-32 sm:pt-36 pb-20 sm:pb-24 px-4 sm:px-6 overflow-hidden flex flex-col items-center justify-center min-h-[90vh]">
         {/* Uplifted Background Image: repositioned higher with crisp contrast */}
         <div
           className="absolute inset-0 bg-cover bg-[position:50%_8%] z-0 scale-105 transition-transform duration-1000"
@@ -177,16 +172,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenApp }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="relative z-10 max-w-3xl mx-auto flex flex-col items-center text-center space-y-6"
+          className="relative z-10 max-w-3xl mx-auto flex flex-col items-center text-center space-y-5 sm:space-y-6"
         >
           {/* Telemetry Tag */}
-          <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-[11px] font-mono text-white">
+          <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-[10px] sm:text-[11px] font-mono text-white">
             <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
             <span className="tracking-wide">HOICHOI HACKATHON '26 • PROBLEM STATEMENT 3</span>
           </div>
 
           {/* Hero Title */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-normal text-white max-w-3xl leading-[1.08] tracking-[-0.035em]">
+          <h1 className="text-3xl sm:text-6xl lg:text-7xl font-normal text-white max-w-3xl leading-[1.12] sm:leading-[1.08] tracking-[-0.035em]">
             Content operations that{" "}
             <span className="font-semibold text-white">
               keeps getting better
@@ -194,28 +189,28 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenApp }) => {
           </h1>
 
           {/* Subtitle */}
-          <p className="text-sm sm:text-base text-zinc-200 max-w-2xl leading-relaxed font-normal drop-shadow-md">
+          <p className="text-xs sm:text-base text-zinc-200 max-w-2xl leading-relaxed font-normal drop-shadow-md px-1">
             SceneSetu transforms a single creative brief into channel-native campaigns across Instagram, YouTube, and X, strictly enforces deterministic QC, dispatches live through your personal social adapters, and feeds verified post-ID analytics back into future briefs.
           </p>
 
-          {/* Hero CTA Buttons: Start Now (Emphasized) + Know More */}
-          <div className="flex flex-col sm:flex-row items-center gap-3.5 pt-4">
+          {/* Hero CTA Buttons: Horizontally Aligned on Mobile and Desktop */}
+          <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-3.5 pt-3 sm:pt-4 w-full">
             <motion.button
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
               onClick={onOpenApp}
-              className="w-full sm:w-auto px-8 py-3 rounded-full bg-white text-black font-semibold text-sm hover:bg-zinc-100 transition-all shadow-[0_0_24px_rgba(255,255,255,0.35)] ring-2 ring-white/40 cursor-pointer flex items-center justify-center space-x-2"
+              className="px-5 sm:px-8 py-2.5 sm:py-3 rounded-full bg-white text-black font-semibold text-xs sm:text-sm hover:bg-zinc-100 transition-all shadow-[0_0_24px_rgba(255,255,255,0.35)] ring-2 ring-white/40 cursor-pointer flex items-center justify-center space-x-1.5 sm:space-x-2 shrink-0 whitespace-nowrap"
             >
               <span>Start Now</span>
-              <ArrowRight className="w-4 h-4 text-black" />
+              <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-black" />
             </motion.button>
 
             <a
               href="#features"
-              className="w-full sm:w-auto px-7 py-3 rounded-full bg-black/50 hover:bg-black/80 border border-white/25 hover:border-white/45 text-white font-medium text-sm transition-all cursor-pointer flex items-center justify-center space-x-2 backdrop-blur-md"
+              className="px-4 sm:px-7 py-2.5 sm:py-3 rounded-full bg-black/50 hover:bg-black/80 border border-white/25 hover:border-white/45 text-white font-medium text-xs sm:text-sm transition-all cursor-pointer flex items-center justify-center space-x-1 sm:space-x-2 backdrop-blur-md shrink-0 whitespace-nowrap"
             >
               <span>Know More</span>
-              <ChevronDown className="w-4 h-4 text-zinc-400" />
+              <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-400" />
             </a>
           </div>
         </motion.div>
