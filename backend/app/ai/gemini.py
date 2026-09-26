@@ -38,42 +38,75 @@ class GeminiProvider(LLMProvider):
             }
         }
 
+        # Prioritized fallback cascade: starts with configured model, then high-quota flash-lite models (500 RPD),
+        # followed by standard flash models (20 RPD)
+        candidate_catalog = [
+            self.model,
+            "gemini-3.5-flash-lite",
+            "gemini-3.1-flash-lite",
+            "gemini-2.5-flash-lite",
+            "gemini-flash-lite-latest",
+            "gemini-3.5-flash",
+            "gemini-3.8-flash",
+            "gemini-2.5-flash",
+            "gemini-flash-latest",
+        ]
+
         models_to_try = []
-        for m in [self.model, "gemini-3.5-flash-lite", "gemini-3.8-flash", "gemini-3.5-flash"]:
+        for m in candidate_catalog:
             if m and m not in models_to_try:
                 models_to_try.append(m)
 
         last_error = None
         for candidate_model in models_to_try:
             url = f"{self.base_url}/models/{candidate_model}:generateContent?key={self.api_key}"
-            for attempt in range(3):
-                try:
-                    async with httpx.AsyncClient(timeout=90.0) as client:
-                        response = await client.post(url, json=payload)
-                        if response.status_code == 200:
-                            data = response.json()
-                            try:
-                                return data["candidates"][0]["content"]["parts"][0]["text"]
-                            except (KeyError, IndexError) as e:
-                                logger.error(f"Malformed Gemini response: {data}")
-                                raise RuntimeError(f"Malformed response from Gemini API: {e}")
-                        
-                        if response.status_code in (429, 503) and attempt < 2:
-                            logger.warning(f"Gemini API rate limit/overload ({response.status_code}) on {candidate_model}, retrying in {attempt + 2}s...")
-                            await asyncio.sleep(attempt + 2)
-                            continue
+            try:
+                async with httpx.AsyncClient(timeout=45.0) as client:
+                    response = await client.post(url, json=payload)
+                    if response.status_code == 200:
+                        data = response.json()
+                        try:
+                            text = data["candidates"][0]["content"]["parts"][0]["text"]
+                            if candidate_model != self.model:
+                                logger.info(
+                                    f"✓ Gemini generation succeeded using automatic fallback model: {candidate_model} (configured: {self.model})"
+                                )
+                            return text
+                        except (KeyError, IndexError) as e:
+                            logger.error(f"Malformed Gemini response from {candidate_model}: {data}")
+                            raise RuntimeError(f"Malformed response from Gemini API: {e}")
 
-                        last_error = f"Gemini API error {response.status_code}: {response.text}"
-                        logger.warning(f"Attempt failed on model {candidate_model}: {last_error}")
-                        break
-                except httpx.TimeoutException:
-                    logger.warning(f"Gemini API timeout on {candidate_model} (attempt {attempt + 1})")
-                    if attempt < 2:
-                        await asyncio.sleep(2)
+                    # If quota exhausted (daily RPD limit reached) or rate limited:
+                    if response.status_code == 429:
+                        error_body = response.text
+                        logger.warning(
+                            f"Gemini model {candidate_model} returned 429 (Rate/Quota limit). Falling back immediately to next model in cascade..."
+                        )
+                        last_error = f"Model {candidate_model} 429: {error_body}"
                         continue
-                    break
 
-        raise RuntimeError(f"All Gemini model attempts failed. Last error: {last_error}")
+                    # Server busy/overload or temporary service error:
+                    if response.status_code in (500, 502, 503, 504):
+                        logger.warning(
+                            f"Gemini model {candidate_model} returned {response.status_code} (Service Unavailable). Falling back to next model..."
+                        )
+                        last_error = f"Model {candidate_model} {response.status_code}: {response.text}"
+                        continue
+
+                    last_error = f"Gemini API error {response.status_code} on {candidate_model}: {response.text}"
+                    logger.warning(f"Attempt failed on model {candidate_model}: {last_error}")
+                    continue
+
+            except httpx.TimeoutException:
+                logger.warning(f"Gemini API timeout (45s) on model {candidate_model}. Falling back to next model...")
+                last_error = f"Model {candidate_model} timed out after 45s"
+                continue
+            except httpx.RequestError as exc:
+                logger.warning(f"Network error on Gemini model {candidate_model}: {exc}. Falling back to next model...")
+                last_error = f"Model {candidate_model} network error: {exc}"
+                continue
+
+        raise RuntimeError(f"All Gemini model fallback attempts failed. Last error: {last_error}")
 
     async def generate_campaign_plan(
         self,
