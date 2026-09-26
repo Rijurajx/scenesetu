@@ -31,14 +31,30 @@ app = FastAPI(
     openapi_url="/openapi.json"
 )
 
-# CORS Middleware
-origins = settings.CORS_ORIGINS if isinstance(settings.CORS_ORIGINS, list) else [settings.CORS_ORIGINS]
+# CORS Middleware - seamless support for Vercel, localhost, and custom deployed domains
+raw_origins = settings.CORS_ORIGINS if isinstance(settings.CORS_ORIGINS, list) else [settings.CORS_ORIGINS]
+explicit_origins = []
+allow_all = False
+
+for o in raw_origins:
+    if o == "*":
+        allow_all = True
+    elif o:
+        explicit_origins.append(o.rstrip("/"))
+
+# Guarantee local development origins
+for default_o in ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:8000"]:
+    if default_o not in explicit_origins:
+        explicit_origins.append(default_o)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins if origins else ["*"],
+    allow_origins=explicit_origins,
+    allow_origin_regex=r"^https?:\/\/.*$" if allow_all else r"^https:\/\/.*\.vercel\.app$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # Exception handlers
