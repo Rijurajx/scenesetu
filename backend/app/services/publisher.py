@@ -9,7 +9,7 @@ from app.core.logging import logger
 from app.models.enums import (
     PlatformType, PostStatus, PublicationStatus, ScheduleStatus, ApprovalDecision
 )
-from app.models.entities import PlatformPost, Approval, Schedule, Publication
+from app.models.entities import PlatformPost, Approval, Schedule, Publication, SocialAdapter
 from app.validators.engine import ValidationEngine
 
 def utcnow():
@@ -264,16 +264,44 @@ class PublishingWorkflowService:
             await db.commit()
             raise ValueError(f"Publisher rejected post due to validation failure: {val_check.error_summary}")
 
-        # Execute Mock Channel Adapter
-        platform_normalized = post.platform.lower().strip()
-        if platform_normalized == PlatformType.INSTAGRAM.value:
-            pub_result = MockPlatformPublisher.publish_to_instagram(post)
-        elif platform_normalized == PlatformType.YOUTUBE.value:
-            pub_result = MockPlatformPublisher.publish_to_youtube(post)
-        elif platform_normalized in (PlatformType.X_TWITTER.value, "twitter", "x"):
-            pub_result = MockPlatformPublisher.publish_to_x(post)
-        else:
-            raise ValueError(f"Unknown platform: {post.platform}")
+        # Check for user-configured personal Social Adapter
+        stmt_adapter = (
+            select(SocialAdapter)
+            .where(
+                SocialAdapter.is_active == True,
+                (SocialAdapter.platform == post.platform.lower().strip()) |
+                (SocialAdapter.platform == "webhook")
+            )
+            .order_by(SocialAdapter.updated_at.desc())
+        )
+        res_adapter = await db.execute(stmt_adapter)
+        custom_adapter = res_adapter.scalars().first()
+
+        pub_result = None
+        if custom_adapter:
+            logger.info(f"Attempting live dispatch via personal adapter '{custom_adapter.adapter_name}' for post {post.id}...")
+            try:
+                from app.services.social_connector import SocialConnectorService
+                pub_result = await SocialConnectorService.publish_live(custom_adapter, post)
+                logger.info(f"Successfully published via personal adapter '{custom_adapter.adapter_name}' to {pub_result.get('external_url')}")
+            except Exception as e:
+                logger.warning(f"Personal adapter dispatch failed: {e}. Falling back to default adapter.")
+
+        # Fallback to simulated channel adapter if no personal adapter configured or if live dispatch failed
+        if not pub_result:
+            platform_normalized = post.platform.lower().strip()
+            if platform_normalized == PlatformType.INSTAGRAM.value:
+                pub_result = MockPlatformPublisher.publish_to_instagram(post)
+            elif platform_normalized == PlatformType.YOUTUBE.value:
+                pub_result = MockPlatformPublisher.publish_to_youtube(post)
+            elif platform_normalized in (PlatformType.X_TWITTER.value, "twitter", "x"):
+                pub_result = MockPlatformPublisher.publish_to_x(post)
+            else:
+                pub_result = {
+                    "external_post_id": f"pub_{uuid.uuid4().hex[:10]}",
+                    "external_url": f"https://mock.platform.com/post/{post.id}",
+                    "payload_snapshot": {"fallback": True}
+                }
 
         # Persist Publication
         if post.publication:

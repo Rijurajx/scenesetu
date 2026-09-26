@@ -239,3 +239,30 @@ class Report(Base):
 
     # Relationships
     campaign: Mapped[Optional["Campaign"]] = relationship("Campaign", back_populates="reports")
+
+
+class SocialAdapter(Base):
+    __tablename__ = "social_adapters"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generate_uuid)
+    platform: Mapped[str] = mapped_column(String(50), nullable=False) # instagram, youtube, x_twitter, webhook
+    adapter_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    config_type: Mapped[str] = mapped_column(String(50), default="api_keys") # api_keys, webhook, oauth
+    
+    # Credentials & Configuration
+    api_key: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    api_secret: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    access_token: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    access_token_secret: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    account_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    webhook_url: Mapped[Optional[str]] = mapped_column(String(1000), nullable=True)
+    custom_headers: Mapped[Optional[Any]] = mapped_column(JSON, default=dict)
+    
+    # Live Status
+    last_status: Mapped[str] = mapped_column(String(50), default="connected") # connected, error, unverified
+    last_tested_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_error: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
+

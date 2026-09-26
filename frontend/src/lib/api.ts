@@ -274,6 +274,32 @@ export const api = {
 
   listReports: () => request<Report[]>("/api/v1/reports"),
 
+  // Social Adapters (Personal Channel Adapters)
+  listAdapters: () => request<SocialAdapter[]>("/api/v1/adapters"),
+  createAdapter: (data: AdapterCreateInput) =>
+    request<SocialAdapter>("/api/v1/adapters", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  updateAdapter: (id: string, data: Partial<AdapterCreateInput>) =>
+    request<SocialAdapter>(`/api/v1/adapters/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+  deleteAdapter: (id: string) =>
+    request<{ status: string; message: string }>(`/api/v1/adapters/${id}`, {
+      method: "DELETE",
+    }),
+  testAdapter: (id: string) =>
+    request<AdapterTestResult>(`/api/v1/adapters/${id}/test`, {
+      method: "POST",
+    }),
+  testDraftAdapter: (data: AdapterCreateInput) =>
+    request<AdapterTestResult>("/api/v1/adapters/test-draft", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
   // Asset URL Helper
   getMediaUrl: (urlOrPath?: string | null) => {
     if (!urlOrPath) return "";
@@ -290,3 +316,44 @@ export const api = {
   getGenerationStreamUrl: (generationId: string) =>
     `${API_BASE_URL}/api/v1/generations/${generationId}/stream`,
 };
+
+export interface SocialAdapter {
+  id: string;
+  platform: string;
+  adapter_name: string;
+  is_active: boolean;
+  config_type: string;
+  account_id?: string;
+  webhook_url?: string;
+  has_api_key: boolean;
+  has_access_token: boolean;
+  last_status: "connected" | "error" | "unverified";
+  last_tested_at?: string;
+  last_error?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdapterCreateInput {
+  platform: string;
+  adapter_name: string;
+  config_type?: string;
+  is_active?: boolean;
+  api_key?: string;
+  api_secret?: string;
+  access_token?: string;
+  access_token_secret?: string;
+  account_id?: string;
+  webhook_url?: string;
+  custom_headers?: Record<string, any>;
+}
+
+export interface AdapterTestResult {
+  success: boolean;
+  message: string;
+  platform: string;
+  status_code?: number;
+  latency_ms?: number;
+  details?: Record<string, any>;
+}
+

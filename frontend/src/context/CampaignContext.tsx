@@ -4,7 +4,14 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { Campaign, GenerationRun, PlatformPost, Insight } from "@/types";
 import { api } from "@/lib/api";
 
-export type WorkspaceTab = "brief" | "studio" | "review" | "publisher" | "analytics" | "insights";
+export type WorkspaceTab =
+  | "brief"
+  | "studio"
+  | "review"
+  | "publisher"
+  | "analytics"
+  | "insights"
+  | "adapters";
 
 interface CampaignContextType {
   campaigns: Campaign[];

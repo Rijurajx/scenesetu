@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from app.api.v1.endpoints import (
-    health, campaigns, posts, workflow, analytics, generations
+    health, campaigns, posts, workflow, analytics, generations, adapters
 )
 
 api_router = APIRouter()
@@ -14,3 +14,5 @@ api_router.include_router(generations.router)
 api_router.include_router(posts.router)
 api_router.include_router(workflow.router)
 api_router.include_router(analytics.router)
+api_router.include_router(adapters.router)
+

@@ -24,6 +24,7 @@ import {
   ShieldCheck,
   Sparkles,
   Cpu,
+  Plug,
   ChevronDown,
   Menu,
 } from "lucide-react";
@@ -75,6 +76,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children, onReturnToLanding 
     },
     { id: "analytics", label: "Analytics", icon: <BarChart3 className="w-5 h-5" /> },
     { id: "insights", label: "Closed Loop", icon: <Lightbulb className="w-5 h-5" /> },
+    { id: "adapters", label: "Adapters", icon: <Plug className="w-5 h-5" /> },
   ];
 
   const getTabTitle = (tab: WorkspaceTab) => {
@@ -91,6 +93,8 @@ export const AppShell: React.FC<AppShellProps> = ({ children, onReturnToLanding 
         return "Like-for-Like Cross-Platform Analytics";
       case "insights":
         return "Evidence-Backed Insights & Next Brief Loop";
+      case "adapters":
+        return "Personal Channel Adapters & Live Credentials";
     }
   };
 

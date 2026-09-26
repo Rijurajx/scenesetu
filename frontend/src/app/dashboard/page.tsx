@@ -10,6 +10,7 @@ import { ReviewWorkspace } from "@/components/review/ReviewWorkspace";
 import { PublisherWorkspace } from "@/components/publisher/PublisherWorkspace";
 import { AnalyticsWorkspace } from "@/components/analytics/AnalyticsWorkspace";
 import { InsightsWorkspace } from "@/components/insights/InsightsWorkspace";
+import { AdaptersWorkspace } from "@/components/adapters/AdaptersWorkspace";
 
 function WorkspaceRouter() {
   const { activeTab } = useCampaign();
@@ -27,6 +28,8 @@ function WorkspaceRouter() {
       return <AnalyticsWorkspace />;
     case "insights":
       return <InsightsWorkspace />;
+    case "adapters":
+      return <AdaptersWorkspace />;
     default:
       return <BriefForm />;
   }

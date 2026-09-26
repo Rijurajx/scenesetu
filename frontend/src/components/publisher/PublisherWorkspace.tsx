@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCampaign } from "@/context/CampaignContext";
-import { api } from "@/lib/api";
+import { api, SocialAdapter } from "@/lib/api";
 import {
   Send,
   Calendar,
@@ -18,7 +18,8 @@ import {
   ChevronUp,
   RotateCcw,
   Sparkles,
-  Layers
+  Layers,
+  Plug
 } from "lucide-react";
 import { InstagramIcon, YouTubeIcon, XTwitterIcon } from "@/components/common/PlatformIcons";
 
@@ -26,11 +27,22 @@ export const PublisherWorkspace: React.FC = () => {
   const { campaigns, activeCampaignId, setActiveCampaignId, refreshCampaigns, setActiveTab } =
     useCampaign();
 
+  const [adapters, setAdapters] = useState<SocialAdapter[]>([]);
   const [publishingPostId, setPublishingPostId] = useState<string | null>(null);
   const [unpublishingPostId, setUnpublishingPostId] = useState<string | null>(null);
   const [scheduledTimes, setScheduledTimes] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<string | null>(null);
   const [collapsedCampaigns, setCollapsedCampaigns] = useState<Record<string, boolean>>({});
+
+  React.useEffect(() => {
+    api.listAdapters().then(setAdapters).catch(() => {});
+  }, []);
+
+  const getMatchingAdapter = (platform: string) => {
+    return adapters.find(
+      (a) => a.platform.toLowerCase() === platform.toLowerCase() && a.is_active
+    );
+  };
 
   const toggleCampaignCollapse = (campaignId: string) => {
     setCollapsedCampaigns((prev) => ({
@@ -148,11 +160,21 @@ export const PublisherWorkspace: React.FC = () => {
             Publisher Control Center
           </h1>
           <p className="text-xs text-zinc-400 mt-0.5">
-            Dispatches approved assets through mock channel adapters (Instagram, YouTube, X). Only published posts stream into Analytics.
+            Dispatches approved assets through your personal social adapters (Webhooks, X API, Instagram Graph API). Falls back to simulator if no personal adapter is configured. Only published posts stream into Analytics.
           </p>
         </div>
 
         <div className="flex items-center space-x-3 shrink-0">
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setActiveTab("adapters")}
+            className="flex items-center space-x-1.5 px-4 py-2 rounded-full bg-[#161616] hover:bg-[#222222] text-zinc-300 hover:text-white border border-[#2B2B2B] text-xs font-medium cursor-pointer transition-all whitespace-nowrap"
+          >
+            <Plug className="w-3.5 h-3.5 text-zinc-400" />
+            <span>Adapters ({adapters.filter((a) => a.is_active).length} Active)</span>
+          </motion.button>
+
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -329,6 +351,7 @@ export const PublisherWorkspace: React.FC = () => {
                           const mediaUrl = api.getMediaUrl(post.asset?.public_url);
                           const isPublishing = publishingPostId === post.id;
                           const isUnpublishing = unpublishingPostId === post.id;
+                          const matchingAdapter = getMatchingAdapter(post.platform);
 
                           return (
                             <motion.div
@@ -345,7 +368,7 @@ export const PublisherWorkspace: React.FC = () => {
                                   <div className="flex items-center space-x-2">
                                     {getPlatformIcon(post.platform)}
                                     <span className="font-mono text-xs uppercase tracking-wide text-zinc-200 font-medium">
-                                      {getPlatformLabel(post.platform)} Adapter
+                                      {getPlatformLabel(post.platform)}
                                     </span>
                                   </div>
                                   <span
@@ -359,6 +382,26 @@ export const PublisherWorkspace: React.FC = () => {
                                   >
                                     {isPublished && <CheckCircle2 className="w-2.5 h-2.5" />}
                                     <span>{post.status.toUpperCase()}</span>
+                                  </span>
+                                </div>
+
+                                {/* Adapter Routing Badge */}
+                                <div className="px-3.5 py-1.5 bg-[#0D0D0D] border-b border-[#181818] flex items-center justify-between text-[10px] font-mono">
+                                  {matchingAdapter ? (
+                                    <div className="flex items-center space-x-1.5 text-emerald-400">
+                                      <Zap className="w-3 h-3 text-emerald-400 shrink-0" />
+                                      <span className="truncate">
+                                        Live: {matchingAdapter.adapter_name} ({matchingAdapter.config_type.toUpperCase()})
+                                      </span>
+                                    </div>
+                                  ) : (
+                                    <div className="flex items-center space-x-1.5 text-zinc-500">
+                                      <Plug className="w-3 h-3 text-zinc-500 shrink-0" />
+                                      <span>Fallback Simulator</span>
+                                    </div>
+                                  )}
+                                  <span className="text-zinc-600 text-[9px] uppercase">
+                                    {matchingAdapter ? "Real API" : "Simulated"}
                                   </span>
                                 </div>
 
@@ -391,9 +434,9 @@ export const PublisherWorkspace: React.FC = () => {
                                     <div className="p-2.5 rounded-lg bg-[#141414] border border-[#242424] text-[11px] space-y-1">
                                       <div className="flex items-center justify-between text-zinc-300 font-medium">
                                         <span className="text-zinc-500 font-mono text-[10px]">
-                                          Mock Endpoint:
+                                          Dispatch Ref:
                                         </span>
-                                        <span className="font-mono text-zinc-300">
+                                        <span className="font-mono text-zinc-300 truncate max-w-[170px]">
                                           {post.publication.external_post_id}
                                         </span>
                                       </div>
@@ -451,7 +494,9 @@ export const PublisherWorkspace: React.FC = () => {
                                       <span>
                                         {isPublishing
                                           ? "Dispatching Adapter..."
-                                          : "Publish via Channel Adapter"}
+                                          : matchingAdapter
+                                          ? `Publish via ${matchingAdapter.adapter_name}`
+                                          : `Publish via Channel Adapter`}
                                       </span>
                                     </motion.button>
                                   </div>
