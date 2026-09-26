@@ -227,9 +227,13 @@ export const api = {
       body: JSON.stringify({ scheduled_time: scheduledTime }),
     }),
 
-  // Mock Publishing
+  // Mock Publishing & Unpublishing
   publishPost: (postId: string) =>
     request<any>(`/api/v1/posts/${postId}/publish`, {
+      method: "POST",
+    }),
+  unpublishPost: (postId: string) =>
+    request<PlatformPost>(`/api/v1/posts/${postId}/unpublish`, {
       method: "POST",
     }),
 

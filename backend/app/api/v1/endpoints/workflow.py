@@ -98,3 +98,25 @@ async def publish_post(
         raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Publishing error: {str(e)}")
+
+@router.post("/posts/{post_id}/unpublish", response_model=PlatformPostResponse)
+async def unpublish_post(
+    post_id: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    UNPUBLISH POST:
+    Reverts a published post back to APPROVED status and removes its publication record.
+    Removes post from active analytics stream.
+    """
+    try:
+        post = await PublishingWorkflowService.unpublish_post(
+            db=db,
+            post_id=post_id
+        )
+        return post
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unpublishing error: {str(e)}")
+

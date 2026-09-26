@@ -137,8 +137,17 @@ async def seed_mock_metrics_for_campaign(
     if not campaign:
         raise HTTPException(status_code=404, detail="Campaign not found")
 
+    published_posts = [p for p in campaign.posts if p.status == "published"]
+    if not published_posts:
+        return {
+            "status": "warning",
+            "message": "No published posts found. Please publish posts via Channel Adapter in Step 4 (Publisher) first!",
+            "campaign_id": campaign_id,
+            "metrics_count": 0
+        }
+
     seeded_metrics = []
-    for post in campaign.posts:
+    for post in published_posts:
         # Generate realistic numbers per platform
         if post.platform == "instagram":
             impr = random.randint(8000, 25000)

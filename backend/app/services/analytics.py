@@ -102,11 +102,12 @@ class AnalyticsService:
         if not campaign:
             raise ValueError(f"Campaign with ID {campaign_id} not found.")
 
-        # Find latest iteration for each platform
+        # Find latest iteration for each platform - strictly for published posts only
         latest_posts_by_platform = {}
         for p in campaign.posts:
-            if p.platform not in latest_posts_by_platform or p.iteration_number > latest_posts_by_platform[p.platform].iteration_number:
-                latest_posts_by_platform[p.platform] = p
+            if p.status == "published":
+                if p.platform not in latest_posts_by_platform or p.iteration_number > latest_posts_by_platform[p.platform].iteration_number:
+                    latest_posts_by_platform[p.platform] = p
 
         comparisons: List[LikeForLikePostComparison] = []
         best_platform: Optional[str] = None
@@ -133,10 +134,13 @@ class AnalyticsService:
                 )
             )
 
-        summary = (
-            f"Comparing {len(comparisons)} platform adaptations for campaign '{campaign.title}'. "
-            + (f"Winner: {best_platform.upper()} with {best_eng_rate}% engagement rate." if best_platform else "No performance metrics ingested yet.")
-        )
+        if not comparisons:
+            summary = f"No published posts yet for campaign '{campaign.title}'. Go to Publisher and click 'Publish via Channel Adapter' to send posts to Analytics."
+        else:
+            summary = (
+                f"Comparing {len(comparisons)} published platform adaptations for campaign '{campaign.title}'. "
+                + (f"Winner: {best_platform.upper()} with {best_eng_rate}% engagement rate." if best_platform else "No performance metrics ingested yet.")
+            )
 
         return LikeForLikeComparisonResponse(
             campaign_id=campaign.id,

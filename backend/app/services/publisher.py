@@ -304,3 +304,52 @@ class PublishingWorkflowService:
         await db.refresh(publication)
         logger.info(f"Post {post.id} published to {post.platform}: {publication.external_url}")
         return publication
+
+    @classmethod
+    async def unpublish_post(
+        cls,
+        db: AsyncSession,
+        post_id: str
+    ) -> PlatformPost:
+        """
+        Unpublishes a post: reverts post status to APPROVED, removes publication record,
+        and removes post from active live platform feeds.
+        """
+        stmt = (
+            select(PlatformPost)
+            .where(PlatformPost.id == post_id)
+            .options(
+                selectinload(PlatformPost.asset),
+                selectinload(PlatformPost.publication),
+                selectinload(PlatformPost.schedule),
+                selectinload(PlatformPost.validation_results),
+                selectinload(PlatformPost.approvals)
+            )
+        )
+        res = await db.execute(stmt)
+        post = res.scalar_one_or_none()
+        if not post:
+            raise ValueError(f"Post with ID {post_id} not found.")
+
+        if post.publication:
+            await db.delete(post.publication)
+            post.publication = None
+
+        post.status = PostStatus.APPROVED.value
+        post.updated_at = utcnow()
+        await db.commit()
+
+        stmt_reload = (
+            select(PlatformPost)
+            .where(PlatformPost.id == post.id)
+            .options(
+                selectinload(PlatformPost.asset),
+                selectinload(PlatformPost.publication),
+                selectinload(PlatformPost.schedule),
+                selectinload(PlatformPost.validation_results),
+                selectinload(PlatformPost.approvals)
+            )
+        )
+        res_reload = await db.execute(stmt_reload)
+        logger.info(f"Post {post.id} ({post.platform}) UNPUBLISHED successfully.")
+        return res_reload.scalar_one()
