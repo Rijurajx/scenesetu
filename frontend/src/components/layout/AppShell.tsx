@@ -25,6 +25,7 @@ import {
   Cpu,
 } from "lucide-react";
 import { PixelBridgeIcon } from "@/components/common/PixelBridgeIcon";
+import { DocsModal } from "@/components/docs/DocsModal";
 
 interface AppShellProps {
   children: ReactNode;
@@ -42,9 +43,9 @@ export const AppShell: React.FC<AppShellProps> = ({ children, onReturnToLanding 
     setActiveCampaignId,
   } = useCampaign();
 
-  // Collapsible sidebar state
+  // Collapsible sidebar state & Documentation Modal
   const [isSidebarExpanded, setIsSidebarExpanded] = useState<boolean>(true);
-  const [isAboutOpen, setIsAboutOpen] = useState<boolean>(false);
+  const [isDocsOpen, setIsDocsOpen] = useState<boolean>(false);
 
   const pendingReviewCount =
     activeCampaign?.posts?.filter((p) => p.status === "pending_review").length || 0;
@@ -202,17 +203,20 @@ export const AppShell: React.FC<AppShellProps> = ({ children, onReturnToLanding 
             )}
           </button>
 
-          {/* Architecture / About button */}
+          {/* Docs button (Replaced About App) */}
           <button
-            onClick={() => setIsAboutOpen(true)}
-            className="w-full flex items-center px-3 py-2.5 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer overflow-hidden"
-            title="About SceneSetu Architecture"
+            onClick={() => setIsDocsOpen(true)}
+            className="w-full flex items-center px-3 py-2.5 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer overflow-hidden group"
+            title="SceneSetu Official Documentation & User Guide"
           >
-            <div className="w-6 h-6 flex items-center justify-center shrink-0 text-zinc-400">
-              <Info className="w-5 h-5" />
+            <div className="w-6 h-6 flex items-center justify-center shrink-0 text-zinc-400 group-hover:text-white transition-colors">
+              <BookOpen className="w-5 h-5" />
             </div>
             {isSidebarExpanded && (
-              <span className="ml-3 truncate text-sm font-medium">About App</span>
+              <div className="flex-1 flex items-center justify-between ml-3 overflow-hidden">
+                <span className="truncate text-sm font-medium">Docs</span>
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/10 text-zinc-300 font-normal">Guide</span>
+              </div>
             )}
           </button>
 
@@ -225,7 +229,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children, onReturnToLanding 
             title="GitHub Repository"
           >
             <div className="w-6 h-6 flex items-center justify-center shrink-0 text-zinc-400">
-              <BookOpen className="w-5 h-5" />
+              <ArrowUpRight className="w-5 h-5" />
             </div>
             {isSidebarExpanded && (
               <div className="flex-1 flex items-center justify-between ml-3 overflow-hidden">
@@ -315,12 +319,14 @@ export const AppShell: React.FC<AppShellProps> = ({ children, onReturnToLanding 
                 </select>
               </div>
 
+              {/* Documentation Button */}
               <button
-                onClick={() => setIsAboutOpen(true)}
-                className="p-2 rounded-md border border-[#262626] bg-[#141414] hover:bg-[#202020] text-zinc-400 hover:text-white transition-colors cursor-pointer"
-                title="About SceneSetu"
+                onClick={() => setIsDocsOpen(true)}
+                className="flex items-center space-x-1.5 px-3 py-1.5 rounded-md border border-[#262626] bg-[#141414] hover:bg-[#202020] text-zinc-300 hover:text-white transition-colors cursor-pointer text-xs font-mono"
+                title="SceneSetu Comprehensive Documentation"
               >
-                <Info className="w-4 h-4" />
+                <BookOpen className="w-3.5 h-3.5 text-white" />
+                <span className="hidden sm:inline">Docs</span>
               </button>
 
               <button
@@ -340,91 +346,8 @@ export const AppShell: React.FC<AppShellProps> = ({ children, onReturnToLanding 
         </div>
       </div>
 
-      {/* About SceneSetu Architecture Modal */}
-      {isAboutOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="bg-[#0F0F0F] border border-[#262626] rounded-2xl max-w-2xl w-full p-6 md:p-8 space-y-6 shadow-2xl overflow-y-auto max-h-[90vh]">
-            <div className="flex items-center justify-between border-b border-[#202020] pb-4">
-              <div className="flex items-center space-x-3">
-                <PixelBridgeIcon className="w-7 h-7 rounded-md" />
-                <div>
-                  <h3 className="text-base font-bold text-white tracking-tight">
-                    SceneSetu • System Overview
-                  </h3>
-                  <p className="text-xs text-zinc-400 font-mono">
-                    AI-Native Content Operations & Campaign Intelligence
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsAboutOpen(false)}
-                className="p-1 rounded-md text-zinc-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <p className="text-xs text-zinc-300 leading-relaxed">
-              SceneSetu is an enterprise-grade AI content orchestration engine engineered for entertainment studios and OTT networks (built for <strong>hoichoi Hackathon 2026 • Problem 3</strong>). It transforms a single creative brief into multi-platform campaigns, strictly enforces channel constraints, and closes the loop by feeding verified post performance back into future briefs.
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-              <div className="p-3.5 rounded-xl bg-[#151515] border border-[#242424] space-y-1.5">
-                <div className="flex items-center space-x-2 text-white font-semibold">
-                  <Sparkles className="w-3.5 h-3.5 text-white" />
-                  <span>Dual AI Engine</span>
-                </div>
-                <p className="text-[11px] text-zinc-400 leading-relaxed">
-                  <strong>Gemini 2.5 Flash</strong> powers native copywriting and Bengali translation. <strong>Pixazo FLUX Schnell</strong> synthesizes high-fidelity 16:9, 1:1, and 4:5 visual artwork.
-                </p>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-[#151515] border border-[#242424] space-y-1.5">
-                <div className="flex items-center space-x-2 text-white font-semibold">
-                  <ShieldCheck className="w-3.5 h-3.5 text-white" />
-                  <span>Deterministic QC</span>
-                </div>
-                <p className="text-[11px] text-zinc-400 leading-relaxed">
-                  Hard channel rules (character limits, hashtag caps, aspect ratios, CTA policies) verified programmatically before human approval.
-                </p>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-[#151515] border border-[#242424] space-y-1.5">
-                <div className="flex items-center space-x-2 text-white font-semibold">
-                  <Cpu className="w-3.5 h-3.5 text-white" />
-                  <span>Closed-Loop Feedback</span>
-                </div>
-                <p className="text-[11px] text-zinc-400 leading-relaxed">
-                  Evidence-backed analytics link concrete post IDs directly to creative insights, dynamically seeding subsequent campaign briefs.
-                </p>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-[#151515] border border-[#242424] space-y-1.5">
-                <div className="flex items-center space-x-2 text-white font-semibold">
-                  <Layers className="w-3.5 h-3.5 text-white" />
-                  <span>Cloud Stack</span>
-                </div>
-                <p className="text-[11px] text-zinc-400 leading-relaxed">
-                  Next.js 16 (Vercel edge) + FastAPI Python 3.11 (Render persistent) + Supabase PostgreSQL & S3 Asset Storage.
-                </p>
-              </div>
-            </div>
-
-            <div className="pt-3 border-t border-[#202020] flex items-center justify-between text-xs font-mono">
-              <span className="text-zinc-500">v1.0.0 • Production Build</span>
-              <a
-                href="https://github.com/Rijurajx/scenesetu"
-                target="_blank"
-                rel="noreferrer"
-                className="text-white hover:underline flex items-center space-x-1"
-              >
-                <span>View on GitHub</span>
-                <ArrowUpRight className="w-3 h-3" />
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Official SceneSetu Documentation Modal */}
+      <DocsModal isOpen={isDocsOpen} onClose={() => setIsDocsOpen(false)} />
     </div>
   );
 };
