@@ -166,6 +166,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenApp }) => {
         {/* Enhanced Vignette Gradients for Legibility and Seamless Dark Blend */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/30 to-[#000000] z-0" />
         <div className="absolute inset-0 bg-radial-gradient from-transparent to-black/70 z-0" />
+        <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[#000000] via-[#000000]/85 to-transparent z-0 pointer-events-none" />
 
         {/* Top Hero Text / Content */}
         <motion.div
@@ -217,7 +218,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenApp }) => {
       </section>
 
       {/* Features & Services Section */}
-      <section id="features" className="py-24 px-6 bg-[#000000] border-t border-[#1C1C1C]">
+      <section id="features" className="py-24 px-6 bg-[#000000]">
         <div className="max-w-6xl mx-auto space-y-12">
           {/* Section Header */}
           <div className="max-w-2xl space-y-3">
