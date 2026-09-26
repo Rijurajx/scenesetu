@@ -28,7 +28,7 @@ class Settings(BaseSettings):
 
     # AI Providers
     GEMINI_API_KEY: str = ""
-    GEMINI_MODEL: str = "gemini-2.0-flash"
+    GEMINI_MODEL: str = "gemini-3.8-flash"
 
     PIXAZO_API_KEY: str = ""
     PIXAZO_BASE_URL: str = "https://api.pixazo.ai/v1"
