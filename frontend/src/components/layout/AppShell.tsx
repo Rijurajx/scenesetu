@@ -59,8 +59,8 @@ export const AppShell: React.FC<AppShellProps> = ({ children, onReturnToLanding 
     ).length || 0;
 
   const navItems: { id: WorkspaceTab; label: string; icon: React.ReactNode; badge?: number }[] = [
-    { id: "brief", label: "Brief Studio", icon: <FileText className="w-5 h-5" /> },
-    { id: "studio", label: "AI Studio", icon: <Sliders className="w-5 h-5" /> },
+    { id: "brief", label: "Generate Campaigns", icon: <FileText className="w-5 h-5" /> },
+    { id: "studio", label: "Edit Campaign", icon: <Sliders className="w-5 h-5" /> },
     {
       id: "review",
       label: "Review Gate",
@@ -80,9 +80,9 @@ export const AppShell: React.FC<AppShellProps> = ({ children, onReturnToLanding 
   const getTabTitle = (tab: WorkspaceTab) => {
     switch (tab) {
       case "brief":
-        return "Campaign Brief & Ingestion";
+        return "Generate Campaigns";
       case "studio":
-        return "AI Multi-Platform Studio";
+        return "Edit Campaign";
       case "review":
         return "Human Review & Deterministic QC";
       case "publisher":
@@ -497,7 +497,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children, onReturnToLanding 
                 className="flex items-center space-x-1 sm:space-x-1.5 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-md bg-white text-black hover:bg-zinc-200 text-xs font-semibold transition-all shadow-sm cursor-pointer whitespace-nowrap shrink-0"
               >
                 <Plus className="w-3.5 h-3.5 text-black" />
-                <span>New Brief</span>
+                <span>New Campaign</span>
               </button>
             </div>
           </div>

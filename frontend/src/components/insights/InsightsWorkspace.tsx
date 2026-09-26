@@ -133,7 +133,7 @@ export const InsightsWorkspace: React.FC = () => {
               The Closed Loop in Action
             </span>
             <p className="text-xs text-zinc-300 mt-0.5">
-              Click <strong className="text-white font-medium">"Feed into Next Brief"</strong> on any insight below to immediately inject empirical strategic learnings into a new campaign brief.
+              Click <strong className="text-white font-medium">"Feed into Next Campaign"</strong> on any insight below to immediately inject empirical strategic learnings into a new campaign.
             </p>
           </div>
         </div>
@@ -144,7 +144,7 @@ export const InsightsWorkspace: React.FC = () => {
           onClick={() => setActiveTab("brief")}
           className="px-5 py-2 rounded-full bg-white text-black hover:bg-zinc-200 text-xs font-medium shrink-0 cursor-pointer shadow-md transition-all"
         >
-          Create New Brief Now
+          Generate New Campaign
         </motion.button>
       </div>
 
@@ -214,7 +214,7 @@ export const InsightsWorkspace: React.FC = () => {
                   {/* Recommendation */}
                   <div className="p-3 rounded-lg bg-[#141414] border border-[#242424] text-xs">
                     <span className="text-[10px] font-mono font-medium text-white uppercase tracking-wider block mb-1">
-                      💡 Recommendation for Next Brief:
+                      💡 Recommendation for Next Campaign:
                     </span>
                     <p className="text-zinc-200 text-xs italic">
                       "{insight.recommendation_for_next_brief}"
@@ -232,7 +232,7 @@ export const InsightsWorkspace: React.FC = () => {
                   }}
                   className="w-full flex items-center justify-center space-x-2 py-2 rounded-full bg-white/10 hover:bg-white text-white hover:text-black border border-white/20 text-xs font-medium transition-all cursor-pointer"
                 >
-                  <span>Feed Insight into Next Brief</span>
+                  <span>Feed Insight into Next Campaign</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </motion.button>
               </motion.div>

@@ -205,7 +205,7 @@ export const ReviewWorkspace: React.FC = () => {
       await refreshCampaigns();
       await refreshActiveCampaign();
       setIsDirty(false);
-      showNotification("✓ Edits saved to Supabase and re-validated by deterministic QC!");
+      showNotification("✓ Edits saved and re-validated by deterministic QC!");
     } catch (err: any) {
       showNotification(`Error saving edits: ${err.message}`);
     } finally {
@@ -234,13 +234,13 @@ export const ReviewWorkspace: React.FC = () => {
     if (!file || !activePost) return;
 
     setIsUploadingImage(true);
-    showNotification(`Uploading "${file.name}" to Supabase Storage...`);
+    showNotification(`Uploading "${file.name}"...`);
     try {
       await uploadPostAsset(activePost.id, file);
       await refreshCampaigns();
       await refreshActiveCampaign();
       showNotification(
-        `✓ Custom image uploaded, stored in Supabase, and linked to ${getPlatformLabel(
+        `✓ Custom image uploaded and linked to ${getPlatformLabel(
           activePost.platform
         )}!`
       );
@@ -337,12 +337,12 @@ export const ReviewWorkspace: React.FC = () => {
     }
   };
 
-  // Send campaign back to AI Multi-Platform Studio
+  // Send campaign back to Edit Campaign
   const handleSendBackToStudio = async (campaignId: string) => {
     setSendingStudioId(campaignId);
     try {
       await sendCampaignToStudio(campaignId);
-      showNotification("✓ Campaign returned to AI Studio! Posts are ready for re-adaptation.");
+      showNotification("✓ Campaign returned to Edit Campaign! Posts are ready for editing.");
       setActiveTab("studio");
     } catch (err: any) {
       alert(`Failed to return campaign to studio: ${err.message || err}`);
@@ -409,7 +409,7 @@ export const ReviewWorkspace: React.FC = () => {
             Editorial Review & Quality Control
           </h1>
           <p className="text-xs text-zinc-400 mt-0.5">
-            Full editorial authority: edit copy in-place, replace visuals with custom uploads, or send campaigns back to AI Studio.
+            Full editorial authority: edit copy in-place, replace visuals with custom uploads, or send campaigns back to Edit Campaign.
           </p>
         </div>
 
@@ -421,7 +421,7 @@ export const ReviewWorkspace: React.FC = () => {
             className="flex items-center space-x-2 px-4 py-2 rounded-full bg-[#141414] hover:bg-[#1E1E1E] border border-[#2B2B2B] text-zinc-200 text-xs font-medium transition-all cursor-pointer whitespace-nowrap"
           >
             <Sliders className="w-3.5 h-3.5 text-white" />
-            <span>AI Studio</span>
+            <span>Edit Campaign</span>
           </motion.button>
 
           <motion.button
@@ -515,7 +515,7 @@ export const ReviewWorkspace: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Campaign Header Actions: Send Back to AI Studio */}
+                {/* Campaign Header Actions: Send Back to Edit Campaign */}
                 <div className="flex items-center space-x-2.5 shrink-0">
                   <motion.button
                     whileHover={{ scale: 1.02 }}
@@ -523,14 +523,14 @@ export const ReviewWorkspace: React.FC = () => {
                     onClick={() => handleSendBackToStudio(camp.id)}
                     disabled={isReturning}
                     className="flex items-center space-x-1.5 px-4 py-2 rounded-full bg-[#161616] hover:bg-[#222222] border border-[#333] text-zinc-200 hover:text-white text-xs font-mono font-medium transition-all shadow-sm cursor-pointer whitespace-nowrap"
-                    title="Send this campaign back to AI Studio for re-generation or prompt tweaking"
+                    title="Send this campaign back to Edit Campaign for revisions"
                   >
                     {isReturning ? (
                       <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
                     ) : (
                       <RotateCcw className="w-3.5 h-3.5 text-zinc-300" />
                     )}
-                    <span>{isReturning ? "Returning..." : "Send Back to AI Studio"}</span>
+                    <span>{isReturning ? "Returning..." : "Send Back to Edit Campaign"}</span>
                   </motion.button>
                 </div>
               </div>
@@ -645,8 +645,8 @@ export const ReviewWorkspace: React.FC = () => {
                                     {isSaving
                                       ? "Saving..."
                                       : isDirty
-                                      ? "Save Edits to Supabase *"
-                                      : "Save to Supabase"}
+                                      ? "Save Changes *"
+                                      : "Save"}
                                   </span>
                                 </motion.button>
                               </div>
@@ -657,7 +657,7 @@ export const ReviewWorkspace: React.FC = () => {
                               {isUploadingImage ? (
                                 <div className="flex flex-col items-center space-y-2 text-zinc-300">
                                   <Loader2 className="w-8 h-8 animate-spin text-white" />
-                                  <span className="text-xs font-mono">Uploading to Supabase Storage...</span>
+                                  <span className="text-xs font-mono">Uploading image...</span>
                                 </div>
                               ) : mediaUrl ? (
                                 <img
@@ -974,7 +974,7 @@ export const ReviewWorkspace: React.FC = () => {
 
                             {isDirty && (
                               <p className="text-[11px] text-amber-400 font-mono">
-                                ⚠️ You have unsaved edits. Click "Save to Supabase" before approving.
+                                ⚠️ You have unsaved edits. Click "Save" before approving.
                               </p>
                             )}
 

@@ -241,7 +241,7 @@ class PixazoProvider(VisualProvider):
         draw.rectangle([(10, 10), (width - 10, height - 10)], outline=(229, 9, 20), width=4)
         draw.rectangle([(20, 20), (width - 20, 80)], fill=(30, 36, 50))
         
-        header_text = f"SceneSetu AI Studio | {self.model} [{aspect_ratio}]"
+        header_text = f"SceneSetu Studio | {self.model} [{aspect_ratio}]"
         draw.text((35, 40), header_text, fill=(255, 255, 255))
 
         prompt_snippet = (prompt[:120] + "...") if len(prompt) > 120 else prompt

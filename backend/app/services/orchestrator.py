@@ -90,7 +90,7 @@ class GenerationOrchestrator:
             if refinement_instruction:
                 brief_to_send += f"\n\nUSER REFINEMENT INSTRUCTION:\n{refinement_instruction}"
             
-            # Optional text limit constraints requested by user in Brief Studio
+            # Optional text limit constraints requested by user in Generate Campaigns
             if text_limits:
                 limit_lines = []
                 if text_limits.get("max_words"):

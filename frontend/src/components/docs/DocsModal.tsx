@@ -253,7 +253,7 @@ export const DocsModal: React.FC<DocsModalProps> = ({ isOpen, onClose }) => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2 text-white font-medium text-xs font-mono">
                     <FileText className="w-4 h-4 text-white" />
-                    <span>STEP 1: BRIEF STUDIO (CAMPAIGN CREATION)</span>
+                    <span>STEP 1: GENERATE CAMPAIGNS</span>
                   </div>
                   <span className="text-[10px] font-mono text-zinc-500">Ingestion</span>
                 </div>
@@ -273,7 +273,7 @@ export const DocsModal: React.FC<DocsModalProps> = ({ isOpen, onClose }) => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2 text-white font-medium text-xs font-mono">
                     <Sliders className="w-4 h-4 text-white" />
-                    <span>STEP 2: AI MULTI-PLATFORM STUDIO</span>
+                    <span>STEP 2: EDIT CAMPAIGN</span>
                   </div>
                   <span className="text-[10px] font-mono text-zinc-500">Generation & Adaptation</span>
                 </div>
@@ -305,7 +305,7 @@ export const DocsModal: React.FC<DocsModalProps> = ({ isOpen, onClose }) => {
                 <div className="bg-[#181818] p-3 rounded-lg text-xs font-mono text-zinc-300 space-y-1">
                   <div>• <strong>Sign Off / Approve:</strong> Permanently signs off the post for production publishing (locked when QC fails).</div>
                   <div>• <strong>Reject:</strong> Flags content requiring creative rework.</div>
-                  <div>• <strong>Send Back to AI Studio:</strong> Returns the campaign to Step 2 for prompt adjustments.</div>
+                  <div>• <strong>Send Back to Edit Campaign:</strong> Returns the campaign to Step 2 for prompt adjustments.</div>
                 </div>
               </div>
 
@@ -338,21 +338,21 @@ export const DocsModal: React.FC<DocsModalProps> = ({ isOpen, onClose }) => {
               <div className="p-3.5 rounded-lg bg-[#141414] border border-[#242424] space-y-1">
                 <span className="font-semibold text-white text-sm">Multi-Campaign Collapsible Architecture</span>
                 <p className="text-zinc-400">
-                  Manage multiple OTT campaigns concurrently without screen clutter. Both the AI Studio and Review Gate support independent accordion collapsing, per-campaign regeneration, and universal batch routing.
+                  Manage multiple OTT campaigns concurrently without screen clutter. Both the Edit Campaign and Review Gate workspaces support independent accordion collapsing, per-campaign regeneration, and universal batch routing.
                 </p>
               </div>
 
               <div className="p-3.5 rounded-lg bg-[#141414] border border-[#242424] space-y-1">
                 <span className="font-semibold text-white text-sm">Custom Image Upload & S3 Storage</span>
                 <p className="text-zinc-400">
-                  Don't want to use AI images? Any platform card in AI Studio or Review Gate features an <em>Upload Img</em> button that uploads user files directly to Supabase Storage and re-validates aspect ratios automatically.
+                  Don't want to use AI images? Any platform card in Edit Campaign or Review Gate features an <em>Upload Img</em> button that uploads user files directly to Supabase Storage and re-validates aspect ratios automatically.
                 </p>
               </div>
 
               <div className="p-3.5 rounded-lg bg-[#141414] border border-[#242424] space-y-1">
                 <span className="font-semibold text-white text-sm">In-Place Editorial Engine</span>
                 <p className="text-zinc-400">
-                  Full inline editing allows marketing leads to fine-tune copy, fix typos, adjust hashtags, or change CTAs with instant Supabase persistence and live character and word counters.
+                  Full inline editing allows marketing leads to fine-tune copy, fix typos, adjust hashtags, or change CTAs with instant saving and live character and word counters.
                 </p>
               </div>
 
@@ -479,7 +479,7 @@ export const DocsModal: React.FC<DocsModalProps> = ({ isOpen, onClose }) => {
                   Q: Why is the "Sign Off / Approve" button disabled in the Review Gate?
                 </h5>
                 <p className="text-zinc-400">
-                  The button is disabled if the post fails deterministic platform validation checks (e.g., copy exceeds 280 characters on X) or if there are unsaved edits in the editor. Fix the copy or replace the asset and click "Save to Supabase" to enable approval.
+                  The button is disabled if the post fails deterministic platform validation checks (e.g., copy exceeds 280 characters on X) or if there are unsaved edits in the editor. Fix the copy or replace the asset and click "Save" to enable approval.
                 </p>
               </div>
 
@@ -494,10 +494,10 @@ export const DocsModal: React.FC<DocsModalProps> = ({ isOpen, onClose }) => {
 
               <div className="p-3.5 rounded-lg bg-[#141414] border border-[#222]">
                 <h5 className="font-medium text-white mb-1">
-                  Q: Can I send a campaign back to AI Studio if revisions are needed?
+                  Q: Can I send a campaign back to Edit Campaign if revisions are needed?
                 </h5>
                 <p className="text-zinc-400">
-                  Yes! In the Review Gate, each campaign header includes a <em>"Send Back to AI Studio"</em> button that resets posts to draft status and transitions your workspace back to Step 2 for prompt tweaks or re-generation.
+                  Yes! In the Review Gate, each campaign header includes a <em>"Send Back to Edit Campaign"</em> button that resets posts to draft status and transitions your workspace back to Step 2 for prompt tweaks or re-generation.
                 </p>
               </div>
 

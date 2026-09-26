@@ -188,7 +188,7 @@ export const StudioWorkspace: React.FC = () => {
       });
 
       setEditingPostId(null);
-      showNotification("Post successfully updated in Supabase & deterministic QC rules re-validated!");
+      showNotification("Post successfully saved & rules re-validated!");
     } catch (err: any) {
       alert(`Failed to save edits: ${err.message || err}`);
     } finally {
@@ -200,7 +200,7 @@ export const StudioWorkspace: React.FC = () => {
   // Delete post handler with confirmation
   const handleDeletePost = async (post: PlatformPost) => {
     const confirmDelete = window.confirm(
-      `Are you sure you want to delete the ${getPlatformLabel(post.platform)} post? This action will remove the copy and visual asset from Supabase.`
+      `Are you sure you want to delete the ${getPlatformLabel(post.platform)} post? This action will remove the copy and visual asset.`
     );
     if (!confirmDelete) return;
 
@@ -227,10 +227,10 @@ export const StudioWorkspace: React.FC = () => {
     if (!file || !uploadTargetPostId) return;
 
     setUploadingPostId(uploadTargetPostId);
-    showNotification(`Uploading "${file.name}" to Supabase Storage...`);
+    showNotification(`Uploading "${file.name}"...`);
     try {
       await uploadPostAsset(uploadTargetPostId, file);
-      showNotification("✓ Custom image uploaded, stored in Supabase, and updated!");
+      showNotification("✓ Custom image uploaded and updated!");
     } catch (err: any) {
       alert(`Image upload failed: ${err.message || err}`);
     } finally {
@@ -264,7 +264,7 @@ export const StudioWorkspace: React.FC = () => {
       });
       await refreshCampaigns();
       await refreshActiveCampaign();
-      showNotification("Copy successfully regenerated & saved to Supabase!");
+      showNotification("Copy successfully regenerated & saved!");
     } catch (err: any) {
       alert(`Text regeneration failed: ${err.message || err}`);
     } finally {
@@ -295,7 +295,7 @@ export const StudioWorkspace: React.FC = () => {
       });
       await refreshCampaigns();
       await refreshActiveCampaign();
-      showNotification("Visual asset regenerated via Pixazo FLUX & stored in Supabase!");
+      showNotification("Visual asset regenerated & saved!");
     } catch (err: any) {
       alert(`Visual regeneration failed: ${err.message || err}`);
     } finally {
@@ -385,13 +385,13 @@ export const StudioWorkspace: React.FC = () => {
         <div>
           <div className="flex items-center space-x-2 text-zinc-400 font-mono text-xs uppercase tracking-wider mb-1">
             <Sliders className="w-3.5 h-3.5 text-white" />
-            <span>Step 2: AI Multi-Platform Studio</span>
+            <span>Step 2: Edit Campaign</span>
           </div>
           <h1 className="text-2xl font-normal text-white tracking-tight">
-            Creative Generation & Platform Adaptation
+            Edit & Refine Campaigns
           </h1>
           <p className="text-xs text-zinc-400 mt-0.5">
-            Manage multiple campaigns, upload custom artwork, delete or regenerate platform posts, and send batches to the Review Gate.
+            Manage multiple campaigns, upload custom photography, edit copy, or regenerate platform posts, and send batches to the Review Gate.
           </p>
         </div>
 
@@ -677,10 +677,10 @@ export const StudioWorkspace: React.FC = () => {
                                   <Loader2 className="w-8 h-8 text-white animate-spin" />
                                   <span className="text-xs font-mono text-zinc-200">
                                     {isDeleting
-                                      ? "Deleting post from Supabase..."
+                                      ? "Deleting post..."
                                       : isUploading
                                       ? "Uploading custom image..."
-                                      : "Processing update & syncing with Supabase..."}
+                                      : "Processing update & saving..."}
                                   </span>
                                 </div>
                               )}
@@ -902,7 +902,7 @@ export const StudioWorkspace: React.FC = () => {
                                         className="px-4 py-1.5 rounded-full bg-white text-black hover:bg-zinc-200 text-xs font-medium flex items-center space-x-1.5 transition-colors cursor-pointer"
                                       >
                                         <Save className="w-3.5 h-3.5 text-black" />
-                                        <span>{isSaving ? "Saving..." : "Save to Supabase"}</span>
+                                        <span>{isSaving ? "Saving..." : "Save"}</span>
                                       </button>
                                     </div>
                                   </div>
@@ -1125,7 +1125,7 @@ export const StudioWorkspace: React.FC = () => {
             </div>
 
             <p className="text-xs text-zinc-400 leading-relaxed">
-              Rerenders a dedicated high-fidelity image using Pixazo FLUX Schnell and persists the asset directly into Supabase Storage.
+              Rerenders a dedicated high-fidelity image using Pixazo FLUX Schnell and saves the asset.
             </p>
 
             <div className="space-y-3 text-xs">

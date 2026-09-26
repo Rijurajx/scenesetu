@@ -44,7 +44,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenApp }) => {
     },
     {
       icon: <Layers className="w-5 h-5 text-white" />,
-      title: "Multi-Platform Visual & Copy Studio",
+      title: "Multi-Platform Campaign Creation & Adaptation",
       description:
         "Generates dedicated 1:1, 16:9, and 4:5 visual artwork with Pixazo FLUX alongside culturally authentic Bengali and English copy for YouTube, Instagram, and X.",
       tag: "Flux Schnell 12B",
@@ -86,9 +86,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenApp }) => {
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="fixed top-5 inset-x-0 z-50 max-w-4xl mx-auto px-4"
+        className="fixed top-5 inset-x-0 z-50 w-fit max-w-[92vw] mx-auto px-2"
       >
-        <div className="bg-[#121614]/80 backdrop-blur-xl border border-white/20 rounded-full px-5 py-2.5 flex items-center justify-between shadow-2xl shadow-black/80">
+        <div className="bg-[#121614]/80 backdrop-blur-xl border border-white/20 rounded-full px-4 sm:px-5 py-2 flex items-center space-x-3.5 sm:space-x-5 shadow-2xl shadow-black/80">
           {/* Left: Pixelated App Icon & Logo */}
           <div
             onClick={onOpenApp}

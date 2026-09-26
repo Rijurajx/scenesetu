@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   keywords: [
     "SceneSetu",
     "Content Operations",
-    "AI Studio",
+    "Edit Campaign",
     "hoichoi Hackathon 2026",
     "Flux Schnell",
     "Gemini 2.5 Flash",

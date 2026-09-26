@@ -297,7 +297,7 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
     setActiveTab("review");
   };
 
-  // Send campaign back to AI Studio
+  // Send campaign back to Edit Campaign
   const sendCampaignToStudio = async (campaignId: string) => {
     await api.sendCampaignToStudio(campaignId);
     setActiveCampaignId(campaignId);

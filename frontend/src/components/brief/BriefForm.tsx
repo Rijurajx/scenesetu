@@ -184,13 +184,13 @@ export const BriefForm: React.FC = () => {
       <div>
         <div className="flex items-center space-x-2 text-zinc-400 font-mono text-xs uppercase tracking-wider mb-1">
           <Compass className="w-3.5 h-3.5 text-white" />
-          <span>Step 1: Campaign Brief Ingestion</span>
+          <span>Step 1: Generate Campaigns</span>
         </div>
         <h1 className="text-2xl font-normal text-white tracking-tight">
-          Create AI Content Operations Brief
+          Generate New Campaign
         </h1>
         <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
-          Enter a single content brief in Bengali or English. SceneSetu’s AI Engine will construct an integrated campaign strategy, author native bilingual copy, generate hosted visual assets, and enforce deterministic platform validation.
+          Enter a content brief in Bengali or English. SceneSetu will automatically craft an integrated campaign strategy, author native bilingual copy, generate visual assets, and prepare ready-to-publish posts for Instagram, YouTube, and X.
         </p>
       </div>
 
@@ -673,7 +673,7 @@ export const BriefForm: React.FC = () => {
             className="flex items-center justify-center space-x-2 px-6 py-2.5 rounded-full bg-white text-black hover:bg-zinc-200 font-medium text-xs sm:text-sm transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer whitespace-nowrap shrink-0"
           >
             <Sparkles className="w-4 h-4 text-black" />
-            <span>{isSubmitting ? "Orchestrating Pipeline..." : "Generate Multi-Platform Campaign"}</span>
+            <span>{isSubmitting ? "Generating Campaign..." : "Generate Multi-Platform Campaign"}</span>
             <ArrowRight className="w-4 h-4 text-black" />
           </motion.button>
         </div>
