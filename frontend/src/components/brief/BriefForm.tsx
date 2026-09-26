@@ -43,6 +43,7 @@ export const BriefForm: React.FC = () => {
 
   // Optional Text / Word / Character Limits (Flexible by default)
   const [enableTextLimits, setEnableTextLimits] = useState<boolean>(false);
+  const [activePreset, setActivePreset] = useState<"none" | "concise" | "standard" | "storytelling" | "custom">("none");
   const [maxWords, setMaxWords] = useState<string>("");
   const [maxChars, setMaxChars] = useState<string>("");
   const [showFieldLimits, setShowFieldLimits] = useState<boolean>(false);
@@ -50,6 +51,43 @@ export const BriefForm: React.FC = () => {
   const [ytTitleMaxChars, setYtTitleMaxChars] = useState<string>("");
   const [ytDescMaxWords, setYtDescMaxWords] = useState<string>("");
   const [xMaxChars, setXMaxChars] = useState<string>("");
+
+  const handleSelectPreset = (preset: "none" | "concise" | "standard" | "storytelling") => {
+    setActivePreset(preset);
+    if (preset === "none") {
+      setEnableTextLimits(false);
+      setMaxWords("");
+      setMaxChars("");
+      setIgMaxWords("");
+      setYtTitleMaxChars("");
+      setYtDescMaxWords("");
+      setXMaxChars("");
+    } else if (preset === "concise") {
+      setEnableTextLimits(true);
+      setMaxWords("60");
+      setMaxChars("260");
+      setIgMaxWords("60");
+      setYtTitleMaxChars("70");
+      setYtDescMaxWords("80");
+      setXMaxChars("180");
+    } else if (preset === "standard") {
+      setEnableTextLimits(true);
+      setMaxWords("120");
+      setMaxChars("550");
+      setIgMaxWords("120");
+      setYtTitleMaxChars("90");
+      setYtDescMaxWords("140");
+      setXMaxChars("220");
+    } else if (preset === "storytelling") {
+      setEnableTextLimits(true);
+      setMaxWords("220");
+      setMaxChars("1200");
+      setIgMaxWords("220");
+      setYtTitleMaxChars("100");
+      setYtDescMaxWords("250");
+      setXMaxChars("260");
+    }
+  };
 
   // Template pre-fills for realistic judging demos
   const loadTemplate = (type: "kolkata_noir" | "durga_puja" | "cyber_thriller") => {
@@ -118,13 +156,17 @@ export const BriefForm: React.FC = () => {
         x_twitter: xAspect,
       };
 
-      const textLimits = enableTextLimits ? {
+      const hasAnyLimits = enableTextLimits || Boolean(
+        maxWords || maxChars || igMaxWords || ytTitleMaxChars || ytDescMaxWords || xMaxChars
+      );
+
+      const textLimits = hasAnyLimits ? {
         max_words: maxWords ? parseInt(maxWords, 10) : undefined,
         max_characters: maxChars ? parseInt(maxChars, 10) : undefined,
-        instagram_max_words: igMaxWords ? parseInt(igMaxWords, 10) : undefined,
+        instagram_max_words: igMaxWords ? parseInt(igMaxWords, 10) : (maxWords ? parseInt(maxWords, 10) : undefined),
         youtube_title_max_chars: ytTitleMaxChars ? parseInt(ytTitleMaxChars, 10) : undefined,
-        youtube_max_words: ytDescMaxWords ? parseInt(ytDescMaxWords, 10) : undefined,
-        x_max_chars: xMaxChars ? parseInt(xMaxChars, 10) : undefined,
+        youtube_max_words: ytDescMaxWords ? parseInt(ytDescMaxWords, 10) : (maxWords ? parseInt(maxWords, 10) : undefined),
+        x_max_chars: xMaxChars ? parseInt(xMaxChars, 10) : (maxChars ? Math.min(parseInt(maxChars, 10), 280) : undefined),
       } : undefined;
 
       // Automatically trigger generation with user-selected aspect ratios and text constraints
@@ -351,167 +393,254 @@ export const BriefForm: React.FC = () => {
         </div>
 
         {/* Optional Text / Character / Word Limit Controls */}
-        <div className="p-4 rounded-xl bg-[#0E0E0E] border border-[#222222] space-y-3">
-          <div className="flex items-center justify-between">
+        <div className="p-4 rounded-xl bg-[#0E0E0E] border border-[#222222] space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center space-x-2 text-zinc-200">
               <SlidersHorizontal className="w-4 h-4 text-white" />
               <span className="text-xs font-mono font-medium uppercase tracking-wider">
-                Copy Length & Word Limit Parameters (Optional)
+                Copy Length & Word Limit Parameters
               </span>
             </div>
-            <button
-              type="button"
-              onClick={() => setEnableTextLimits(!enableTextLimits)}
-              className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-medium transition-all cursor-pointer ${
-                enableTextLimits
-                  ? "bg-white text-black"
-                  : "bg-[#1E1E1E] text-zinc-400 hover:text-white"
-              }`}
-            >
-              {enableTextLimits ? "Limits Active" : "Disabled by Default"}
-            </button>
+
+            {/* Mode Switcher */}
+            <div className="flex items-center bg-[#141414] p-1 rounded-lg border border-[#262626] text-[11px] font-mono">
+              <button
+                type="button"
+                onClick={() => handleSelectPreset("none")}
+                className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
+                  !enableTextLimits && activePreset === "none"
+                    ? "bg-white text-black font-semibold shadow-sm"
+                    : "text-zinc-400 hover:text-white"
+                }`}
+              >
+                Flexible Pacing (Default)
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEnableTextLimits(true);
+                  if (activePreset === "none") {
+                    handleSelectPreset("concise");
+                  }
+                }}
+                className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
+                  enableTextLimits
+                    ? "bg-white text-black font-semibold shadow-sm"
+                    : "text-zinc-400 hover:text-white"
+                }`}
+              >
+                Enforce Brand Caps
+              </button>
+            </div>
           </div>
 
-          <p className="text-[11px] text-zinc-500">
-            By default, SceneSetu organically crafts native bilingual copy respecting each platform's natural viral pacing. Enable this only if your brand guidelines mandate strict word or character caps.
+          <p className="text-[11px] text-zinc-400 leading-relaxed">
+            By default, SceneSetu crafts native bilingual copy respecting each platform's natural pacing. Select a preset or specify exact caps below to programmatically enforce rigid character or word boundaries across all generated posts.
           </p>
 
-          {enableTextLimits && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              className="pt-2 space-y-3 border-t border-[#1C1C1C]"
-            >
-              {/* Preset selection */}
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[11px] text-zinc-400 font-mono">Quick Presets:</span>
-                <button
-                  type="button"
-                  onClick={() => { setMaxWords("60"); setMaxChars("260"); }}
-                  className="px-2.5 py-1 rounded-md bg-[#161616] hover:bg-[#202020] border border-[#2B2B2B] text-[11px] text-zinc-300 transition-colors"
-                >
-                  Concise (~60 words)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setMaxWords("120"); setMaxChars("550"); }}
-                  className="px-2.5 py-1 rounded-md bg-[#161616] hover:bg-[#202020] border border-[#2B2B2B] text-[11px] text-zinc-300 transition-colors"
-                >
-                  Standard (~120 words)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setMaxWords("220"); setMaxChars("1200"); }}
-                  className="px-2.5 py-1 rounded-md bg-[#161616] hover:bg-[#202020] border border-[#2B2B2B] text-[11px] text-zinc-300 transition-colors"
-                >
-                  Storytelling (~220 words)
-                </button>
-              </div>
+          {/* Quick Presets Bar */}
+          <div className="pt-2 border-t border-[#1C1C1C] space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] text-zinc-400 font-mono">Quick Brand Presets:</span>
+              {enableTextLimits && (
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/10 text-white border border-white/20">
+                  Caps Active: {maxWords ? `Max ${maxWords} words` : ""}{maxChars ? ` • Max ${maxChars} chars` : ""}
+                </span>
+              )}
+            </div>
 
-              {/* Custom inputs */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                <div>
-                  <label className="block text-[11px] font-mono text-zinc-400 mb-1">
-                    Global Word Limit (Optional)
-                  </label>
-                  <input
-                    type="number"
-                    min="10"
-                    max="1000"
-                    value={maxWords}
-                    onChange={(e) => setMaxWords(e.target.value)}
-                    placeholder="e.g. 80 words per copy"
-                    className="w-full bg-[#141414] border border-[#282828] rounded px-3 py-1.5 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-white transition-colors"
-                  />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <button
+                type="button"
+                onClick={() => handleSelectPreset("concise")}
+                className={`p-2.5 rounded-lg border text-left transition-all cursor-pointer ${
+                  enableTextLimits && activePreset === "concise"
+                    ? "bg-[#181818] border-white text-white shadow-md ring-1 ring-white/30"
+                    : "bg-[#121212] border-[#222222] hover:border-[#383838] text-zinc-300"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium">Concise</span>
+                  <span className="text-[10px] font-mono text-zinc-400">~60 words</span>
                 </div>
-                <div>
-                  <label className="block text-[11px] font-mono text-zinc-400 mb-1">
-                    Global Character Limit (Optional)
-                  </label>
-                  <input
-                    type="number"
-                    min="50"
-                    max="5000"
-                    value={maxChars}
-                    onChange={(e) => setMaxChars(e.target.value)}
-                    placeholder="e.g. 500 characters"
-                    className="w-full bg-[#141414] border border-[#282828] rounded px-3 py-1.5 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-white transition-colors"
-                  />
+                <span className="text-[10px] text-zinc-500 block mt-0.5">
+                  High-tempo punchy hooks (under 260 chars)
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSelectPreset("standard")}
+                className={`p-2.5 rounded-lg border text-left transition-all cursor-pointer ${
+                  enableTextLimits && activePreset === "standard"
+                    ? "bg-[#181818] border-white text-white shadow-md ring-1 ring-white/30"
+                    : "bg-[#121212] border-[#222222] hover:border-[#383838] text-zinc-300"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium">Standard</span>
+                  <span className="text-[10px] font-mono text-zinc-400">~120 words</span>
                 </div>
+                <span className="text-[10px] text-zinc-500 block mt-0.5">
+                  Balanced context & hashtags (under 550 chars)
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSelectPreset("storytelling")}
+                className={`p-2.5 rounded-lg border text-left transition-all cursor-pointer ${
+                  enableTextLimits && activePreset === "storytelling"
+                    ? "bg-[#181818] border-white text-white shadow-md ring-1 ring-white/30"
+                    : "bg-[#121212] border-[#222222] hover:border-[#383838] text-zinc-300"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium">Storytelling</span>
+                  <span className="text-[10px] font-mono text-zinc-400">~220 words</span>
+                </div>
+                <span className="text-[10px] text-zinc-500 block mt-0.5">
+                  Long-form narrative drama (under 1200 chars)
+                </span>
+              </button>
+            </div>
+
+            {/* Custom Inputs with auto-activate */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              <div>
+                <label className="block text-[11px] font-mono text-zinc-400 mb-1">
+                  Global Word Cap (Max Words Per Copy)
+                </label>
+                <input
+                  type="number"
+                  min="10"
+                  max="1000"
+                  value={maxWords}
+                  onChange={(e) => {
+                    setMaxWords(e.target.value);
+                    setEnableTextLimits(true);
+                    setActivePreset("custom");
+                  }}
+                  placeholder="e.g. 60 words"
+                  className="w-full bg-[#141414] border border-[#282828] focus:border-white rounded px-3 py-1.5 text-xs text-white placeholder-zinc-600 focus:outline-none transition-colors"
+                />
               </div>
 
-              {/* Per-Platform / Field Custom Overrides */}
-              <div className="pt-2 border-t border-[#1F1F1F]">
-                <button
-                  type="button"
-                  onClick={() => setShowFieldLimits(!showFieldLimits)}
-                  className="flex items-center space-x-1.5 text-[11px] font-mono text-zinc-400 hover:text-white transition-colors cursor-pointer"
+              <div>
+                <label className="block text-[11px] font-mono text-zinc-400 mb-1">
+                  Global Character Cap (Max Characters Per Copy)
+                </label>
+                <input
+                  type="number"
+                  min="30"
+                  max="5000"
+                  value={maxChars}
+                  onChange={(e) => {
+                    setMaxChars(e.target.value);
+                    setEnableTextLimits(true);
+                    setActivePreset("custom");
+                  }}
+                  placeholder="e.g. 260 characters"
+                  className="w-full bg-[#141414] border border-[#282828] focus:border-white rounded px-3 py-1.5 text-xs text-white placeholder-zinc-600 focus:outline-none transition-colors"
+                />
+              </div>
+            </div>
+
+            {/* Per-Platform / Field Custom Overrides */}
+            <div className="pt-2 border-t border-[#1F1F1F]">
+              <button
+                type="button"
+                onClick={() => setShowFieldLimits(!showFieldLimits)}
+                className="flex items-center space-x-1.5 text-[11px] font-mono text-zinc-400 hover:text-white transition-colors cursor-pointer"
+              >
+                <span>{showFieldLimits ? "▾ Hide Platform-Specific Caps" : "▸ Show Platform-Specific Overrides (Instagram, YouTube, X)"}</span>
+              </button>
+
+              {showFieldLimits && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3"
                 >
-                  <span>{showFieldLimits ? "▾ Hide Platform / Field Overrides" : "▸ Show Platform / Field Specific Limits"}</span>
-                </button>
+                  <div className="p-2.5 rounded bg-[#121212] border border-[#242424] space-y-1">
+                    <span className="text-[10px] font-mono text-zinc-400 block">
+                      Instagram Caption Word Cap
+                    </span>
+                    <input
+                      type="number"
+                      min="10"
+                      max="2000"
+                      value={igMaxWords}
+                      onChange={(e) => {
+                        setIgMaxWords(e.target.value);
+                        setEnableTextLimits(true);
+                        setActivePreset("custom");
+                      }}
+                      placeholder="e.g. 60 words"
+                      className="w-full bg-[#181818] border border-[#2E2E2E] focus:border-white rounded px-2.5 py-1 text-xs text-white placeholder-zinc-600 focus:outline-none"
+                    />
+                  </div>
 
-                {showFieldLimits && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3"
-                  >
-                    <div className="p-2.5 rounded bg-[#121212] border border-[#242424] space-y-1">
-                      <span className="text-[10px] font-mono text-zinc-400 block">Instagram Caption Max Words</span>
-                      <input
-                        type="number"
-                        min="10"
-                        max="2000"
-                        value={igMaxWords}
-                        onChange={(e) => setIgMaxWords(e.target.value)}
-                        placeholder="e.g. 100 words"
-                        className="w-full bg-[#181818] border border-[#2E2E2E] rounded px-2.5 py-1 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-white"
-                      />
-                    </div>
+                  <div className="p-2.5 rounded bg-[#121212] border border-[#242424] space-y-1">
+                    <span className="text-[10px] font-mono text-zinc-400 block">
+                      YouTube Title Char Cap (Strict Max: 100)
+                    </span>
+                    <input
+                      type="number"
+                      min="5"
+                      max="100"
+                      value={ytTitleMaxChars}
+                      onChange={(e) => {
+                        setYtTitleMaxChars(e.target.value);
+                        setEnableTextLimits(true);
+                        setActivePreset("custom");
+                      }}
+                      placeholder="e.g. 70 chars"
+                      className="w-full bg-[#181818] border border-[#2E2E2E] focus:border-white rounded px-2.5 py-1 text-xs text-white placeholder-zinc-600 focus:outline-none"
+                    />
+                  </div>
 
-                    <div className="p-2.5 rounded bg-[#121212] border border-[#242424] space-y-1">
-                      <span className="text-[10px] font-mono text-zinc-400 block">YouTube Title Max Chars (Cap: 100)</span>
-                      <input
-                        type="number"
-                        min="5"
-                        max="100"
-                        value={ytTitleMaxChars}
-                        onChange={(e) => setYtTitleMaxChars(e.target.value)}
-                        placeholder="e.g. 70 chars"
-                        className="w-full bg-[#181818] border border-[#2E2E2E] rounded px-2.5 py-1 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-white"
-                      />
-                    </div>
+                  <div className="p-2.5 rounded bg-[#121212] border border-[#242424] space-y-1">
+                    <span className="text-[10px] font-mono text-zinc-400 block">
+                      YouTube Description Word Cap
+                    </span>
+                    <input
+                      type="number"
+                      min="20"
+                      max="2000"
+                      value={ytDescMaxWords}
+                      onChange={(e) => {
+                        setYtDescMaxWords(e.target.value);
+                        setEnableTextLimits(true);
+                        setActivePreset("custom");
+                      }}
+                      placeholder="e.g. 120 words"
+                      className="w-full bg-[#181818] border border-[#2E2E2E] focus:border-white rounded px-2.5 py-1 text-xs text-white placeholder-zinc-600 focus:outline-none"
+                    />
+                  </div>
 
-                    <div className="p-2.5 rounded bg-[#121212] border border-[#242424] space-y-1">
-                      <span className="text-[10px] font-mono text-zinc-400 block">YouTube Description Max Words</span>
-                      <input
-                        type="number"
-                        min="20"
-                        max="2000"
-                        value={ytDescMaxWords}
-                        onChange={(e) => setYtDescMaxWords(e.target.value)}
-                        placeholder="e.g. 150 words"
-                        className="w-full bg-[#181818] border border-[#2E2E2E] rounded px-2.5 py-1 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-white"
-                      />
-                    </div>
-
-                    <div className="p-2.5 rounded bg-[#121212] border border-[#242424] space-y-1">
-                      <span className="text-[10px] font-mono text-zinc-400 block">X / Twitter Max Chars (Cap: 280)</span>
-                      <input
-                        type="number"
-                        min="20"
-                        max="280"
-                        value={xMaxChars}
-                        onChange={(e) => setXMaxChars(e.target.value)}
-                        placeholder="e.g. 200 chars"
-                        className="w-full bg-[#181818] border border-[#2E2E2E] rounded px-2.5 py-1 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-white"
-                      />
-                    </div>
-                  </motion.div>
-                )}
-              </div>
-            </motion.div>
-          )}
+                  <div className="p-2.5 rounded bg-[#121212] border border-[#242424] space-y-1">
+                    <span className="text-[10px] font-mono text-zinc-400 block">
+                      X (Twitter) Post Char Cap (Strict Max: 280)
+                    </span>
+                    <input
+                      type="number"
+                      min="20"
+                      max="280"
+                      value={xMaxChars}
+                      onChange={(e) => {
+                        setXMaxChars(e.target.value);
+                        setEnableTextLimits(true);
+                        setActivePreset("custom");
+                      }}
+                      placeholder="e.g. 200 chars"
+                      className="w-full bg-[#181818] border border-[#2E2E2E] focus:border-white rounded px-2.5 py-1 text-xs text-white placeholder-zinc-600 focus:outline-none"
+                    />
+                  </div>
+                </motion.div>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3">

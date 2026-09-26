@@ -55,6 +55,10 @@ interface CampaignContextType {
   selectInsightForNextBrief: (insight: Insight) => void;
   selectedPriorInsightIds: string[];
   setSelectedPriorInsightIds: React.Dispatch<React.SetStateAction<string[]>>;
+  activeTextLimits: Record<string, any> | null;
+  setActiveTextLimits: (limits: Record<string, any> | null) => void;
+  activeAspectRatios: Record<string, string> | null;
+  setActiveAspectRatios: (ratios: Record<string, string> | null) => void;
 }
 
 const CampaignContext = createContext<CampaignContextType | undefined>(undefined);
@@ -70,6 +74,8 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
   const [systemReady, setSystemReady] = useState<boolean>(false);
   const [priorInsightsForBrief, setPriorInsightsForBrief] = useState<Insight[]>([]);
   const [selectedPriorInsightIds, setSelectedPriorInsightIds] = useState<string[]>([]);
+  const [activeTextLimits, setActiveTextLimits] = useState<Record<string, any> | null>(null);
+  const [activeAspectRatios, setActiveAspectRatios] = useState<Record<string, string> | null>(null);
 
   // Check backend readiness on mount
   useEffect(() => {
@@ -133,6 +139,16 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
       setActiveCampaignId(targetCampaignId);
     }
     
+    if (textLimits !== undefined) {
+      setActiveTextLimits(textLimits);
+    }
+    if (aspectRatios !== undefined) {
+      setActiveAspectRatios(aspectRatios);
+    }
+
+    const limitsToSend = textLimits !== undefined ? textLimits : activeTextLimits;
+    const aspectRatiosToSend = aspectRatios !== undefined ? aspectRatios : activeAspectRatios;
+
     setIsGenerating(true);
     setGenerationProgress("Starting AI Campaign Intelligence Pipeline...");
     setActiveTab("studio");
@@ -142,8 +158,8 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
         cid,
         instruction,
         selectedPriorInsightIds.length > 0 ? selectedPriorInsightIds : undefined,
-        aspectRatios,
-        textLimits
+        aspectRatiosToSend || undefined,
+        limitsToSend || undefined
       );
 
       setGenerationProgress("Generating visual assets & verifying platform constraints...");
@@ -275,6 +291,10 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
         regeneratePostImage,
         uploadPostAsset,
         selectInsightForNextBrief,
+        activeTextLimits,
+        setActiveTextLimits,
+        activeAspectRatios,
+        setActiveAspectRatios,
       }}
     >
       {children}

@@ -20,7 +20,8 @@ import {
   FileText,
   Crop,
   Check,
-  AlertCircle
+  AlertCircle,
+  SlidersHorizontal,
 } from "lucide-react";
 import { InstagramIcon, YouTubeIcon, XTwitterIcon } from "@/components/common/PlatformIcons";
 
@@ -35,6 +36,7 @@ export const StudioWorkspace: React.FC = () => {
     regeneratePostText,
     regeneratePostImage,
     refreshActiveCampaign,
+    activeTextLimits,
   } = useCampaign();
 
   const [selectedPlatform, setSelectedPlatform] = useState<string>("all");
@@ -325,11 +327,23 @@ export const StudioWorkspace: React.FC = () => {
       {/* AI Strategy Synthesis Card */}
       {strategy && (
         <div className="p-5 rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] space-y-3">
-          <div className="flex items-center space-x-2 text-white">
-            <Sparkles className="w-4 h-4 text-white" />
-            <span className="text-xs font-mono font-medium uppercase tracking-wider">
-              AI Creative Strategy Blueprint
-            </span>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center space-x-2 text-white">
+              <Sparkles className="w-4 h-4 text-white" />
+              <span className="text-xs font-mono font-medium uppercase tracking-wider">
+                AI Creative Strategy Blueprint
+              </span>
+            </div>
+
+            {activeTextLimits && (activeTextLimits.max_words || activeTextLimits.max_characters) && (
+              <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-white/10 border border-white/20 text-[10px] font-mono text-zinc-300">
+                <SlidersHorizontal className="w-3 h-3 text-white" />
+                <span>
+                  Enforced Limits: {activeTextLimits.max_words ? `Max ${activeTextLimits.max_words}w` : ""}
+                  {activeTextLimits.max_characters ? ` • Max ${activeTextLimits.max_characters}c` : ""}
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
@@ -699,10 +713,12 @@ export const StudioWorkspace: React.FC = () => {
                           <span className="text-[10px] text-zinc-500 font-mono uppercase tracking-wider">
                             Native Copy ({post.language})
                           </span>
-                          <span className="text-[10px] text-zinc-500 font-mono">
-                            {post.copy_primary.length} chars •{" "}
-                            {post.copy_primary.trim().split(/\s+/).filter(Boolean).length} words
+                          <span className="text-[10px] text-zinc-400 font-mono">
+                            {post.copy_primary.length} chars
                             {post.platform === "x_twitter" && " / 280"}
+                            {activeTextLimits?.max_characters ? ` [Cap: ${activeTextLimits.max_characters}c]` : ""} •{" "}
+                            {post.copy_primary.trim().split(/\s+/).filter(Boolean).length} words
+                            {activeTextLimits?.max_words ? ` [Cap: ${activeTextLimits.max_words}w]` : ""}
                           </span>
                         </div>
                         <p className="text-xs text-zinc-200 whitespace-pre-line leading-relaxed font-sans line-clamp-6 bg-[#141414] p-3 rounded-lg border border-[#222222]">
