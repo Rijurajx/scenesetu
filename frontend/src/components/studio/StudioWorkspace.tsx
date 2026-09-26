@@ -434,52 +434,54 @@ export const StudioWorkspace: React.FC = () => {
         </div>
       )}
 
-      {/* Global Platform Filter Tabs */}
-      <div className="flex items-center space-x-2 border-b border-[#1E1E1E] pb-3">
-        <span className="text-xs text-zinc-400 mr-2 font-mono">Platform Filter:</span>
-        <button
-          onClick={() => setSelectedPlatform("all")}
-          className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
-            selectedPlatform === "all"
-              ? "bg-white text-black"
-              : "bg-[#121212] border border-[#242424] text-zinc-400 hover:text-white"
-          }`}
-        >
-          All Platforms
-        </button>
-        <button
-          onClick={() => setSelectedPlatform("instagram")}
-          className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all flex items-center space-x-1.5 cursor-pointer ${
-            selectedPlatform === "instagram"
-              ? "bg-white text-black"
-              : "bg-[#121212] border border-[#242424] text-zinc-400 hover:text-white"
-          }`}
-        >
-          <InstagramIcon className="w-3.5 h-3.5" />
-          <span>Instagram</span>
-        </button>
-        <button
-          onClick={() => setSelectedPlatform("youtube")}
-          className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all flex items-center space-x-1.5 cursor-pointer ${
-            selectedPlatform === "youtube"
-              ? "bg-white text-black"
-              : "bg-[#121212] border border-[#242424] text-zinc-400 hover:text-white"
-          }`}
-        >
-          <YouTubeIcon className="w-3.5 h-3.5" />
-          <span>YouTube</span>
-        </button>
-        <button
-          onClick={() => setSelectedPlatform("x_twitter")}
-          className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all flex items-center space-x-1.5 cursor-pointer ${
-            selectedPlatform === "x_twitter"
-              ? "bg-white text-black"
-              : "bg-[#121212] border border-[#242424] text-zinc-400 hover:text-white"
-          }`}
-        >
-          <XTwitterIcon className="w-3.5 h-3.5" />
-          <span>X (Twitter)</span>
-        </button>
+      {/* Global Filter Slider Tabs */}
+      <div className="flex items-center space-x-2.5 border-b border-[#1E1E1E] pb-3 overflow-x-auto no-scrollbar w-full">
+        <span className="text-xs text-zinc-400 font-mono shrink-0 whitespace-nowrap">Filter:</span>
+        <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar py-0.5 shrink-0">
+          <button
+            onClick={() => setSelectedPlatform("all")}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer shrink-0 whitespace-nowrap ${
+              selectedPlatform === "all"
+                ? "bg-white text-black"
+                : "bg-[#121212] border border-[#242424] text-zinc-400 hover:text-white"
+            }`}
+          >
+            All Platforms
+          </button>
+          <button
+            onClick={() => setSelectedPlatform("instagram")}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all flex items-center space-x-1.5 cursor-pointer shrink-0 whitespace-nowrap ${
+              selectedPlatform === "instagram"
+                ? "bg-white text-black"
+                : "bg-[#121212] border border-[#242424] text-zinc-400 hover:text-white"
+            }`}
+          >
+            <InstagramIcon className="w-3.5 h-3.5 shrink-0" />
+            <span className="whitespace-nowrap">Instagram</span>
+          </button>
+          <button
+            onClick={() => setSelectedPlatform("youtube")}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all flex items-center space-x-1.5 cursor-pointer shrink-0 whitespace-nowrap ${
+              selectedPlatform === "youtube"
+                ? "bg-white text-black"
+                : "bg-[#121212] border border-[#242424] text-zinc-400 hover:text-white"
+            }`}
+          >
+            <YouTubeIcon className="w-3.5 h-3.5 shrink-0" />
+            <span className="whitespace-nowrap">YouTube</span>
+          </button>
+          <button
+            onClick={() => setSelectedPlatform("x_twitter")}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all flex items-center space-x-1.5 cursor-pointer shrink-0 whitespace-nowrap ${
+              selectedPlatform === "x_twitter"
+                ? "bg-white text-black"
+                : "bg-[#121212] border border-[#242424] text-zinc-400 hover:text-white"
+            }`}
+          >
+            <XTwitterIcon className="w-3.5 h-3.5 shrink-0" />
+            <span className="whitespace-nowrap">X (Twitter)</span>
+          </button>
+        </div>
       </div>
 
       {/* Multiple Campaigns Collapsible Container */}
