@@ -181,6 +181,24 @@ export const api = {
     return uploadFile<PlatformPost>(`/api/v1/posts/${postId}/upload-asset`, formData);
   },
 
+  deletePost: (postId: string) =>
+    request<{ status: string; message: string; deleted_post_id: string }>(
+      `/api/v1/posts/${postId}`,
+      { method: "DELETE" }
+    ),
+
+  sendCampaignToReview: (campaignId: string) =>
+    request<{ status: string; message: string; campaign_id: string; posts_count: number }>(
+      `/api/v1/campaigns/${campaignId}/send-to-review`,
+      { method: "POST" }
+    ),
+
+  sendCampaignToStudio: (campaignId: string) =>
+    request<{ status: string; message: string; campaign_id: string; posts_count: number }>(
+      `/api/v1/campaigns/${campaignId}/send-to-studio`,
+      { method: "POST" }
+    ),
+
   refinePost: (postId: string, refinementInstruction: string) =>
     request<PlatformPost>(`/api/v1/posts/${postId}/refine`, {
       method: "POST",

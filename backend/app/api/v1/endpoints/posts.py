@@ -161,6 +161,45 @@ async def upload_post_asset(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to upload asset: {str(e)}")
 
+@router.delete("/posts/{post_id}")
+async def delete_post(
+    post_id: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Deletes a single post and its attached validation results, approvals, schedules, and metrics.
+    """
+    stmt = (
+        select(PlatformPost)
+        .where(PlatformPost.id == post_id)
+        .options(
+            selectinload(PlatformPost.validation_results),
+            selectinload(PlatformPost.approvals),
+            selectinload(PlatformPost.schedule),
+            selectinload(PlatformPost.publication),
+            selectinload(PlatformPost.metrics)
+        )
+    )
+    res = await db.execute(stmt)
+    post = res.scalar_one_or_none()
+    if not post:
+        raise HTTPException(status_code=404, detail=f"Post with ID {post_id} not found.")
+
+    for v in post.validation_results:
+        await db.delete(v)
+    for a in post.approvals:
+        await db.delete(a)
+    for m in post.metrics:
+        await db.delete(m)
+    if post.schedule:
+        await db.delete(post.schedule)
+    if post.publication:
+        await db.delete(post.publication)
+
+    await db.delete(post)
+    await db.commit()
+    return {"status": "success", "message": f"Post {post_id} deleted successfully.", "deleted_post_id": post_id}
+
 @router.api_route("/assets/media/{file_name}", methods=["GET", "HEAD"])
 async def serve_media(file_name: str):
     """Serves generated visual assets directly for frontend preview."""

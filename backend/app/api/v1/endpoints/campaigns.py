@@ -41,8 +41,21 @@ async def list_campaigns(
     offset: int = 0,
     db: AsyncSession = Depends(get_db)
 ):
-    """Lists campaigns ordered by most recent."""
-    stmt = select(Campaign).order_by(Campaign.created_at.desc()).offset(offset).limit(limit)
+    """Lists campaigns ordered by most recent, with their posts and assets."""
+    stmt = (
+        select(Campaign)
+        .order_by(Campaign.created_at.desc())
+        .offset(offset)
+        .limit(limit)
+        .options(
+            selectinload(Campaign.posts).selectinload(PlatformPost.asset),
+            selectinload(Campaign.posts).selectinload(PlatformPost.validation_results),
+            selectinload(Campaign.posts).selectinload(PlatformPost.approvals),
+            selectinload(Campaign.posts).selectinload(PlatformPost.publication),
+            selectinload(Campaign.posts).selectinload(PlatformPost.schedule),
+            selectinload(Campaign.posts).selectinload(PlatformPost.metrics),
+        )
+    )
     res = await db.execute(stmt)
     return list(res.scalars().all())
 
@@ -124,3 +137,69 @@ async def trigger_campaign_generation(
         raise HTTPException(status_code=404, detail=str(ve))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Generation pipeline error: {str(e)}")
+
+@router.post("/{campaign_id}/send-to-review")
+async def send_campaign_to_review(
+    campaign_id: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Universal review trigger: marks all campaign posts as pending_review
+    and readies the entire campaign for the Review Gate.
+    """
+    stmt = (
+        select(Campaign)
+        .where(Campaign.id == campaign_id)
+        .options(
+            selectinload(Campaign.posts).selectinload(PlatformPost.asset),
+            selectinload(Campaign.posts).selectinload(PlatformPost.validation_results)
+        )
+    )
+    res = await db.execute(stmt)
+    campaign = res.scalar_one_or_none()
+    if not campaign:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+
+    for post in campaign.posts:
+        if post.status != "approved":
+            post.status = "pending_review"
+
+    await db.commit()
+    return {
+        "status": "success",
+        "message": f"Campaign '{campaign.title}' sent to Review Gate.",
+        "campaign_id": campaign.id,
+        "posts_count": len(campaign.posts)
+    }
+
+@router.post("/{campaign_id}/send-to-studio")
+async def send_campaign_to_studio(
+    campaign_id: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Sends campaign back to AI Multi-Platform Studio for editing, regeneration, or adjustments.
+    """
+    stmt = (
+        select(Campaign)
+        .where(Campaign.id == campaign_id)
+        .options(
+            selectinload(Campaign.posts).selectinload(PlatformPost.asset)
+        )
+    )
+    res = await db.execute(stmt)
+    campaign = res.scalar_one_or_none()
+    if not campaign:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+
+    for post in campaign.posts:
+        if post.status in ("rejected", "pending_review"):
+            post.status = "draft"
+
+    await db.commit()
+    return {
+        "status": "success",
+        "message": f"Campaign '{campaign.title}' returned to AI Multi-Platform Studio.",
+        "campaign_id": campaign.id,
+        "posts_count": len(campaign.posts)
+    }

@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import List, Optional, Any
 from pydantic import BaseModel, Field, ConfigDict
 from app.models.enums import Language
+from app.schemas.post import PlatformPostResponse
 
 class CampaignCreate(BaseModel):
     title: str = Field(..., min_length=2, max_length=255, description="Campaign title")
@@ -24,3 +25,4 @@ class CampaignResponse(BaseModel):
     status: str
     created_at: datetime
     updated_at: datetime
+    posts: Optional[List[PlatformPostResponse]] = []

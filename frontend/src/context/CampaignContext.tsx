@@ -52,6 +52,9 @@ interface CampaignContextType {
     }
   ) => Promise<PlatformPost>;
   uploadPostAsset: (postId: string, file: File) => Promise<PlatformPost>;
+  deletePost: (postId: string) => Promise<void>;
+  sendCampaignToReview: (campaignId: string) => Promise<void>;
+  sendCampaignToStudio: (campaignId: string) => Promise<void>;
   selectInsightForNextBrief: (insight: Insight) => void;
   selectedPriorInsightIds: string[];
   setSelectedPriorInsightIds: React.Dispatch<React.SetStateAction<string[]>>;
@@ -256,8 +259,51 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
         posts: prev.posts?.map((p) => (p.id === postId ? updatedPost : p)) || [],
       };
     });
+    setCampaigns((prev) =>
+      prev.map((c) => ({
+        ...c,
+        posts: c.posts?.map((p) => (p.id === postId ? updatedPost : p)) || [],
+      }))
+    );
     refreshActiveCampaign();
     return updatedPost;
+  };
+
+  // Delete a single post
+  const deletePost = async (postId: string) => {
+    await api.deletePost(postId);
+    setActiveCampaign((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        posts: prev.posts?.filter((p) => p.id !== postId) || [],
+      };
+    });
+    setCampaigns((prev) =>
+      prev.map((c) => ({
+        ...c,
+        posts: c.posts?.filter((p) => p.id !== postId) || [],
+      }))
+    );
+    await refreshActiveCampaign();
+  };
+
+  // Universal review trigger: Send entire campaign to Review Gate
+  const sendCampaignToReview = async (campaignId: string) => {
+    await api.sendCampaignToReview(campaignId);
+    setActiveCampaignId(campaignId);
+    await refreshCampaigns();
+    await refreshActiveCampaign();
+    setActiveTab("review");
+  };
+
+  // Send campaign back to AI Studio
+  const sendCampaignToStudio = async (campaignId: string) => {
+    await api.sendCampaignToStudio(campaignId);
+    setActiveCampaignId(campaignId);
+    await refreshCampaigns();
+    await refreshActiveCampaign();
+    setActiveTab("studio");
   };
 
   const selectInsightForNextBrief = (insight: Insight) => {
@@ -290,6 +336,9 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
         regeneratePostText,
         regeneratePostImage,
         uploadPostAsset,
+        deletePost,
+        sendCampaignToReview,
+        sendCampaignToStudio,
         selectInsightForNextBrief,
         activeTextLimits,
         setActiveTextLimits,
